@@ -11,18 +11,31 @@ import java.util.List;
 @Setter
 public class CustomFieldValue {
     private int fieldId;
-    private String fieldName;
-    private String fieldCode = null;
-    private FieldType fieldType = FieldType.text;
+
+    //    private FieldType fieldType = FieldType.text;
     private List<Value> values;
 
-    @NoArgsConstructor
-    static class Value {
-        @Getter
-        @Setter
-        private String value;
-    }
     enum FieldType {
-        numeric, textarea, text, select, multitext
+        numeric, textarea, text, select, multitext, url, multiselect;
+
+        //        FieldType(String value, int id) {
+//            this.value = value;
+//            this.id = id;
+//        }
+        public String getValue() {
+            return value;
+        }
+
+        private String value;
+        private int id;
+
+        public static FieldType fromValue(String value) {
+            for (FieldType type : values()) {
+                if (type.getValue().equals(value)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("Неизвестное значение " + value);
+        }
     }
 }
