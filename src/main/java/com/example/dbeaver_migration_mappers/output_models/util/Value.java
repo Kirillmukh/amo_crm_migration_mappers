@@ -1,4 +1,7 @@
 package com.example.dbeaver_migration_mappers.output_models.util;
 
-public record Value (String value, Integer enumId) {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record Value (Object value, Integer enumId) {
 }

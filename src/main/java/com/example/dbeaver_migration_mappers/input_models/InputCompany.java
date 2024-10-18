@@ -12,7 +12,7 @@ public class InputCompany {
     private String phone;
     private String category; // accountCategoryId -> name
     private String industry; // industryId (AccountIndustry.java) -> name
-    private byte usrCompanyUseEDM;
+    private boolean usrCompanyUseEDM;
     private String usrArchiveEvents;
     private String usrEventsOfRival;
     private String usrPrimKontr;

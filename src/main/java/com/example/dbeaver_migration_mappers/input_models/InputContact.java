@@ -11,7 +11,7 @@ public class InputContact {
     private String name; // contact -> name
     private String jobTitle; // contact -> jobTitle
     private String company; // accountId -> name
-    private String Phone; // contact -> phone
+    private String phone; // contact -> phone
     private String mobilePhone; // contact -> mobilePhone
     private String email; // contact -> email
     private String alternativeEmail; // contact -> usrAdvancedEmail
@@ -26,7 +26,7 @@ public class InputContact {
     private String moderation; // usrModerationId (UsrModeration.java) -> name
     private byte doNotUseEmail;
     private byte doNotUseCall;
-    byte doNotUseFax;
+    private byte doNotUseFax;
     private byte doNotUseSms;
     private byte doNotUsEmail;
     private String usrPrimKontakta; // contact -> usrPrimKontakta // notes

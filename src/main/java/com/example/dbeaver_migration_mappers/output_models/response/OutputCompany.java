@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class ResponseLead {
+public class OutputCompany {
     private String name;
-    private int price;
-    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+    private List<CustomFieldValue> customFieldValues;
 }
