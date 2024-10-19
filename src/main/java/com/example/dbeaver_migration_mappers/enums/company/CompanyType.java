@@ -2,7 +2,9 @@ package com.example.dbeaver_migration_mappers.enums.company;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
 public enum CompanyType implements ValueEnum {
     INFOPARTNER(1349965, "Инфопартнер"),
@@ -12,10 +14,6 @@ public enum CompanyType implements ValueEnum {
     DUBL(1489967, "Дубль"),
     NULL(1491173, "NULL"),
     PODRYADCHIK(1782921, "Подрядчик");
-    CompanyType(int enumId, String value) {
-        this.enumId = enumId;
-        this.value = value;
-    }
     private final int enumId;
     private final String value;
     public static final int fieldId = 2922061;

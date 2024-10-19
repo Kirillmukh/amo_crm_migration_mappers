@@ -2,7 +2,7 @@ package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
 import com.example.dbeaver_migration_mappers.output_models.response.OutputLead;
-import com.example.dbeaver_migration_mappers.output_models.constant.LeadFieldsID;
+import com.example.dbeaver_migration_mappers.output_models.constants.LeadFieldsID;
 import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.output_models.util.Value;
 import org.mapstruct.Mapper;

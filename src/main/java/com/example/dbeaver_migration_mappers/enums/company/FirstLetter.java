@@ -1,11 +1,11 @@
 package com.example.dbeaver_migration_mappers.enums.company;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
-@AllArgsConstructor
 public enum FirstLetter implements ValueEnum {
     RUS1(1766251, 'а'),
     RUS2(1766253, 'б'),

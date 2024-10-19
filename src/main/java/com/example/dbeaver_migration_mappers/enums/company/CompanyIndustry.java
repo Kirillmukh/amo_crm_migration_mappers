@@ -1,11 +1,11 @@
 package com.example.dbeaver_migration_mappers.enums.company;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
-@AllArgsConstructor
 public enum CompanyIndustry implements ValueEnum {
     FMCG_FOOD(1473139, "FMCG/Food"),
     FMCG_NONFOOD(1473141, "FMCG/Nonfood"),
@@ -79,7 +79,7 @@ public enum CompanyIndustry implements ValueEnum {
     private final int enumId;
     private final String value;
     public static final int fieldId = 2933361;
-    public CompanyIndustry of(String value) {
+    public static CompanyIndustry of(String value) {
         for (CompanyIndustry ci : values()) {
             if (value.equals(ci.getValue())) {
                 return ci;

@@ -2,7 +2,9 @@ package com.example.dbeaver_migration_mappers.enums.contact;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
 public enum ContactType implements ValueEnum {
 
@@ -18,11 +20,6 @@ public enum ContactType implements ValueEnum {
     EMPLOYER(1489969, "Сотрудник Интерфорум"),
     NULL(1491881, "NULL"),
     INFOPARTNER(1491883, "Инфопартнер");
-
-    ContactType(int enumId, String value) {
-        this.enumId = enumId;
-        this.value = value;
-    }
     private final int enumId;
     private final String value;
     public static final int fieldId = 2922033;

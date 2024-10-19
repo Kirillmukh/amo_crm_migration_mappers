@@ -1,9 +1,9 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
-import com.example.dbeaver_migration_mappers.enums.company.CompanyCategory;
+import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
-import com.example.dbeaver_migration_mappers.output_models.constant.CompanyFieldsID;
+import com.example.dbeaver_migration_mappers.output_models.constants.CompanyFieldsID;
 import com.example.dbeaver_migration_mappers.output_models.response.OutputCompany;
 import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.output_models.util.Value;
@@ -23,10 +23,31 @@ public interface CompanyMapper {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(CompanyFieldsID.ALTERNATIVE_NAME, List.of(createValue(input.getAlternativeName()))));
 
+        CompanyType type = CompanyType.of(input.getType());
+        list.add(new CustomFieldValue(CompanyFieldsID.TYPE, List.of(createValue(type))));
+
+        list.add(new CustomFieldValue(CompanyFieldsID.WEB, List.of(createValue(input.getWeb()))));
+
+        CompanyPhone phone = new CompanyPhone(input.getPhone(), CompanyPhone.Type.MOBILE); // MOBILE?
+        list.add(new CustomFieldValue(CompanyFieldsID.PHONE, List.of(createValue(phone))));
+
         CompanyCategory category = CompanyCategory.of(input.getCategory());
         list.add(new CustomFieldValue(CompanyFieldsID.CATEGORY, List.of(createValue(category))));
 
+        CompanyIndustry industry = CompanyIndustry.of(input.getIndustry());
+        list.add(new CustomFieldValue(CompanyFieldsID.INDUSTRY, List.of(createValue(industry))));
+
         list.add(new CustomFieldValue(CompanyFieldsID.EDM, List.of(createValue(input.isUsrCompanyUseEDM()))));
+
+        // TODO REPLACE: USE LEAD
+        List<Value> events = new ArrayList<>();
+        for (String event : input.getUsrArchiveEvents().split(" ")) {
+            if (CompanyEvent.contains(event)) {
+                events.add(createValue(CompanyEvent.of(event)));
+            }
+        }
+        list.add(new CustomFieldValue(CompanyFieldsID.EVENTS, events));
+
         list.add(new CustomFieldValue(CompanyFieldsID.NOTES, List.of(createValue(input.getUsrPrimKontr()))));
         return list;
     }
