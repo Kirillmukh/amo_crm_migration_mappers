@@ -13,6 +13,8 @@ public enum ContactType implements ValueEnum {
     DEKRET(1349921, "Декрет"),
     NOT_ACTUAL(1489803, "НЕ АКТУАЛЕН"),
     PRESENTATOR(1349923, "Докладчик (только)"),
+    DUBL(1349925, "Дубль"),
+    LEAD(1489801, "Лид"),
     MISSING_EVENTS(1489805, "Не посещает мероприятия"),
     MISSING_PERSONALITY(1489807, "Обезличенный"),
     PARTNER(1489809, "Партнер"),

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 public class CompanyFieldsID {
     public static final int ALTERNATIVE_NAME = 2922055;
     public static final int PHONE = 1720451;
+    public static final int EMAIL = 1720453;
     public static final int WEB = 1720455;
     public static final int TYPE = 2922061;
     public static final int CATEGORY = 2922069;
