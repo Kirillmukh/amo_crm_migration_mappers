@@ -22,7 +22,7 @@ public class InputContact {
     private String department; // departmentId (Department.java) -> name
     private String usrOldEvents; // contact -> usrOldEvents
     private String usrOldEventsOfRivals; // contact -> usrOldEvents
-    private int usrDiscCard; // contact -> UsrDiscCard
+    private String usrDiscCard; // contact -> UsrDiscCard
     private String moderation; // usrModerationId (UsrModeration.java) -> name
     private byte doNotUseEmail;
     private byte doNotUseCall;

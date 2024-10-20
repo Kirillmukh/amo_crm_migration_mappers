@@ -21,43 +21,34 @@ public interface CompanyMapper {
     OutputCompany mapToOutput(InputCompany inputCompany);
     default List<CustomFieldValue> setCustomFields(InputCompany input) {
         List<CustomFieldValue> list = new ArrayList<>();
-        list.add(new CustomFieldValue(CompanyFieldsID.ALTERNATIVE_NAME, List.of(createValue(input.getAlternativeName()))));
+        list.add(new CustomFieldValue(CompanyFieldsID.ALTERNATIVE_NAME, List.of(new Value(input.getAlternativeName()))));
 
         CompanyType type = CompanyType.of(input.getType());
-        list.add(new CustomFieldValue(CompanyFieldsID.TYPE, List.of(createValue(type))));
+        list.add(new CustomFieldValue(CompanyFieldsID.TYPE, List.of(new Value(type))));
 
-        list.add(new CustomFieldValue(CompanyFieldsID.WEB, List.of(createValue(input.getWeb()))));
+        list.add(new CustomFieldValue(CompanyFieldsID.WEB, List.of(new Value(input.getWeb()))));
 
-        CompanyPhone phone = new CompanyPhone(input.getPhone(), CompanyPhone.Type.MOBILE); // MOBILE?
-        list.add(new CustomFieldValue(CompanyFieldsID.PHONE, List.of(createValue(phone))));
+        CompanyPhone phone = new CompanyPhone(input.getPhone(), CompanyPhone.Type.WORK); // WORK? MOBILE?
+        list.add(new CustomFieldValue(CompanyFieldsID.PHONE, List.of(new Value(phone))));
 
         CompanyCategory category = CompanyCategory.of(input.getCategory());
-        list.add(new CustomFieldValue(CompanyFieldsID.CATEGORY, List.of(createValue(category))));
+        list.add(new CustomFieldValue(CompanyFieldsID.CATEGORY, List.of(new Value(category))));
 
         CompanyIndustry industry = CompanyIndustry.of(input.getIndustry());
-        list.add(new CustomFieldValue(CompanyFieldsID.INDUSTRY, List.of(createValue(industry))));
+        list.add(new CustomFieldValue(CompanyFieldsID.INDUSTRY, List.of(new Value(industry))));
 
-        list.add(new CustomFieldValue(CompanyFieldsID.EDM, List.of(createValue(input.isUsrCompanyUseEDM()))));
+        list.add(new CustomFieldValue(CompanyFieldsID.EDM, List.of(new Value(input.isUsrCompanyUseEDM()))));
 
         // TODO REPLACE: USE LEAD
         List<Value> events = new ArrayList<>();
         for (String event : input.getUsrArchiveEvents().split(" ")) {
             if (CompanyEvent.contains(event)) {
-                events.add(createValue(CompanyEvent.of(event)));
+                events.add(new Value(CompanyEvent.of(event)));
             }
         }
         list.add(new CustomFieldValue(CompanyFieldsID.EVENTS, events));
 
-        list.add(new CustomFieldValue(CompanyFieldsID.NOTES, List.of(createValue(input.getUsrPrimKontr()))));
+        list.add(new CustomFieldValue(CompanyFieldsID.NOTES, List.of(new Value(input.getUsrPrimKontr()))));
         return list;
-    }
-    private Value createValue(String value) {
-        return new Value(value, null);
-    }
-    private Value createValue(Boolean value) {
-        return new Value(value, null);
-    }
-    private Value createValue(ValueEnum valueEnum) {
-        return new Value(valueEnum.getValue(), valueEnum.getEnumId());
     }
 }

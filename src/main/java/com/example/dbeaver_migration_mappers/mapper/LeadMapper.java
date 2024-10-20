@@ -22,12 +22,12 @@ public interface LeadMapper {
 
     default List<CustomFieldValue> setCustomFields(InputLead inputLead) {
         List<CustomFieldValue> list = new ArrayList<>();
-        list.add(new CustomFieldValue(LeadFieldsID.COMMENTARY, List.of(createValue(inputLead.getCommentary()))));
-        list.add(new CustomFieldValue(LeadFieldsID.LEAD_SOURCE, List.of(createValue(inputLead.getLeadSource()))));
-        list.add(new CustomFieldValue(LeadFieldsID.FORUM, List.of(createValue(inputLead.getConference()))));
+        list.add(new CustomFieldValue(LeadFieldsID.COMMENTARY, singleValue(inputLead.getCommentary())));
+        list.add(new CustomFieldValue(LeadFieldsID.LEAD_SOURCE, singleValue(inputLead.getLeadSource())));
+        list.add(new CustomFieldValue(LeadFieldsID.FORUM, singleValue(inputLead.getConference())));
         return list;
     }
-    private Value createValue(String value) {
-        return new Value(value, null);
+    private List<Value> singleValue(String value) {
+        return List.of(new Value(value));
     }
 }
