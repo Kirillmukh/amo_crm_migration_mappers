@@ -13,7 +13,7 @@ public class InputCompany {
     private String category; // accountCategoryId -> name
     private String industry; // industryId (AccountIndustry.java) -> name
     private boolean usrCompanyUseEDM;
-    private String usrArchiveEvents;
+    private String usrOldEvents;
     private String usrEventsOfRival;
     private String usrPrimKontr;
 }
