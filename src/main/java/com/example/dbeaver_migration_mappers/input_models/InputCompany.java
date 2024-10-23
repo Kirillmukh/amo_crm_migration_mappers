@@ -16,4 +16,6 @@ public class InputCompany {
     private String usrOldEvents;
     private String usrEventsOfRival;
     private String usrPrimKontr;
+    private String segment;
+    private String moderation;
 }

@@ -50,6 +50,10 @@ public interface CompanyMapper {
         list.add(new CustomFieldValue(EVENTS, events));
 
         list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontr())));
+
+        list.add(new CustomFieldValue(SEGMENT, singleValue(input.getSegment())));
+
+        list.add(new CustomFieldValue(MODERATION, singleValue(input.getModeration())));
         return list;
     }
     private List<Value> singleValue(Object value) {
