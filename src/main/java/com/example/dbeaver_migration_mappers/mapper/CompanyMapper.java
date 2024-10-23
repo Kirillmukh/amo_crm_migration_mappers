@@ -27,10 +27,14 @@ public interface CompanyMapper {
         CompanyType type = CompanyType.of(input.getType());
         list.add(new CustomFieldValue(TYPE, singleValue(type)));
 
-        list.add(new CustomFieldValue(WEB, singleValue(input.getWeb())));
+        if (!input.getWeb().isBlank()) {
+            list.add(new CustomFieldValue(WEB, singleValue(input.getWeb())));
+        }
 
-        CompanyPhone phone = new CompanyPhone(input.getPhone(), CompanyPhone.Type.WORK); // WORK? MOBILE?
-        list.add(new CustomFieldValue(PHONE, singleValue(phone)));
+        if (!input.getPhone().isBlank()) {
+            CompanyPhone phone = new CompanyPhone(input.getPhone(), CompanyPhone.Type.WORK);
+            list.add(new CustomFieldValue(PHONE, singleValue(phone)));
+        }
 
         CompanyCategory category = CompanyCategory.of(input.getCategory());
         list.add(new CustomFieldValue(CATEGORY, singleValue(category)));
@@ -38,22 +42,33 @@ public interface CompanyMapper {
         CompanyIndustry industry = CompanyIndustry.of(input.getIndustry());
         list.add(new CustomFieldValue(INDUSTRY, singleValue(industry)));
 
-        list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM())));
+        list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM()))); // TODO CHECK THAT 'false' USE IN REQUEST OR NOT
 
-        // TODO REPLACE: USE LEAD?
-        List<Value> events = new ArrayList<>();
-        for (String event : input.getUsrOldEvents().split(" ")) {
-            if (CompanyEvent.contains(event)) {
-                events.add(new Value(CompanyEvent.of(event)));
+        if (!input.getUsrOldEvents().isBlank()) {
+            List<Value> events = new ArrayList<>();
+            for (String event : input.getUsrOldEvents().split(" ")) {
+                if (CompanyEvent.contains(event)) {
+                    events.add(new Value(CompanyEvent.of(event)));
+                }
             }
+            list.add(new CustomFieldValue(EVENTS, events));
         }
-        list.add(new CustomFieldValue(EVENTS, events));
 
-        list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontr())));
+        if (!input.getUsrPrimKontr().isBlank()) {
+            list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontr())));
+        }
 
-        list.add(new CustomFieldValue(SEGMENT, singleValue(input.getSegment())));
+        CompanySegment segment = CompanySegment.of(input.getSegment());
+        list.add(new CustomFieldValue(SEGMENT, singleValue(segment)));
 
-        list.add(new CustomFieldValue(MODERATION, singleValue(input.getModeration())));
+        if (input.getModeration() != null) {
+            CompanyModeration moderation = CompanyModeration.of(input.getModeration());
+            list.add(new CustomFieldValue(MODERATION, singleValue(moderation)));
+        }
+
+        CompanyFirstLetter firstLetter = CompanyFirstLetter.of(input.getName());
+        list.add(new CustomFieldValue(FIRST_LETTER, singleValue(firstLetter)));
+
         return list;
     }
     private List<Value> singleValue(Object value) {
