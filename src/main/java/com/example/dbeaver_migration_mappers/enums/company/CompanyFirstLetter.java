@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum FirstLetter implements ValueEnum {
+public enum CompanyFirstLetter implements ValueEnum {
     RUS1(1766251, 'а'),
     RUS2(1766253, 'б'),
     RUS3(1766255, 'в'),
@@ -43,14 +43,25 @@ public enum FirstLetter implements ValueEnum {
     private final int enumId;
     private final char letter;
     public static final int fieldId = 3011273;
-    public static FirstLetter of(String title) {
+    public static CompanyFirstLetter of(String title) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("FirstLetter: title is null or blank");
         }
         char letter = title.toLowerCase().charAt(0);
-        for (FirstLetter fl : values()) {
+        for (CompanyFirstLetter fl : values()) {
             if (letter == fl.getLetter()) {
                 return fl;
+            }
+        }
+        switch (title) {
+            case "A / А&A CAPITAL" -> {
+                return RUS1;
+            }
+            case "cisoclub" -> {
+                return RUS24;
+            }
+            case "HRbazaar" -> {
+                return RUS31;
             }
         }
         throw new IllegalArgumentException("Wrong value for FirstLetter: " + title + "\n" +
