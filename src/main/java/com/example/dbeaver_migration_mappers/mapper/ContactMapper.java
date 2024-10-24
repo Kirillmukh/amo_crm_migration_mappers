@@ -58,7 +58,7 @@ public interface ContactMapper {
         ContactType type = ContactType.of(input.getType());
         list.add(new CustomFieldValue(TYPE, singleValue(type)));
 
-        if (!input.getDear().isBlank()) {
+        if (input.getDear() != null) {
             ContactDear dear = ContactDear.of(input.getDear());
             list.add(new CustomFieldValue(DEAR, singleValue(dear)));
         }
