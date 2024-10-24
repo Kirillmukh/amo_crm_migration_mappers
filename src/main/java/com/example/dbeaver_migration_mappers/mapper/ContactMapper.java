@@ -1,6 +1,7 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
+import com.example.dbeaver_migration_mappers.enums.company.CompanyModeration;
 import com.example.dbeaver_migration_mappers.enums.contact.*;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.output_models.response.OutputContact;
@@ -52,10 +53,12 @@ public interface ContactMapper {
             list.add(new CustomFieldValue(EMAIL, emailList));
         }
 
-        list.add(new CustomFieldValue(TYPE, singleValue(ContactType.of(input.getType()))));
+        ContactType type = ContactType.of(input.getType());
+        list.add(new CustomFieldValue(TYPE, singleValue(type)));
 
         if (!input.getDear().isBlank()) {
-            list.add(new CustomFieldValue(DEAR, singleValue(ContactDear.of(input.getDear()))));
+            ContactDear dear = ContactDear.of(input.getDear());
+            list.add(new CustomFieldValue(DEAR, singleValue(dear)));
         }
 
         if (!input.getIo().isBlank()) {
@@ -63,11 +66,13 @@ public interface ContactMapper {
         }
 
         if (input.getRole() != null) {
-            list.add(new CustomFieldValue(ROLE, singleValue(ContactRole.of(input.getRole()))));
+            ContactRole role = ContactRole.of(input.getRole());
+            list.add(new CustomFieldValue(ROLE, singleValue(role)));
         }
 
         if (input.getDepartment() != null) {
-            list.add(new CustomFieldValue(DEPARTMENT, singleValue(ContactDepartment.of(input.getDepartment()))));
+            ContactDepartment department = ContactDepartment.of(input.getDepartment());
+            list.add(new CustomFieldValue(DEPARTMENT, singleValue(department)));
         }
 
         if (!input.getUsrOldEvents().isBlank()) {
@@ -85,7 +90,8 @@ public interface ContactMapper {
         }
 
         if (input.getModeration() != null) {
-            list.add(new CustomFieldValue(MODERATION, singleValue(input.getModeration())));
+            ContactModeration moderation = ContactModeration.of(input.getModeration());
+            list.add(new CustomFieldValue(MODERATION, singleValue(moderation)));
         }
 
         if (!input.getUsrPrimKontakta().isBlank()) {
