@@ -43,11 +43,13 @@ public interface ContactMapper {
         }
 
         List<Value> emailList = new ArrayList<>();
+        ContactEmail.Type emailType = ContactEmail.Type.WORK;
         if (!input.getEmail().isBlank()) {
-            emailList.add(new Value(new ContactEmail(input.getEmail(), ContactEmail.Type.WORK)));
+            emailList.add(new Value(new ContactEmail(input.getEmail(), emailType)));
+            emailType = ContactEmail.Type.PERSONALITY;
         }
         if (!input.getAlternativeEmail().isBlank()) {
-            emailList.add(new Value(new ContactEmail(input.getAlternativeEmail(), ContactEmail.Type.WORK)));
+            emailList.add(new Value(new ContactEmail(input.getAlternativeEmail(), emailType)));
         }
         if (!emailList.isEmpty()) {
             list.add(new CustomFieldValue(EMAIL, emailList));
