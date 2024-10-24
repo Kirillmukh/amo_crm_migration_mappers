@@ -24,41 +24,73 @@ public interface ContactMapper {
     default List<CustomFieldValue> setCustomFieldValues(InputContact input) {
         List<CustomFieldValue> list = new ArrayList<>();
 
-        list.add(new CustomFieldValue(JOB_TITLE, singleValue(input.getJobTitle())));
+        if (!input.getJobTitle().isBlank()) {
+            list.add(new CustomFieldValue(JOB_TITLE, singleValue(input.getJobTitle())));
+        }
 
         List<Value> phoneList = new ArrayList<>();
-        phoneList.add(new Value(new ContactPhone(input.getPhone(), ContactPhone.Type.WORK)));
-        phoneList.add(new Value(new ContactPhone(input.getMobilePhone(), ContactPhone.Type.MOBILE))); // CAN BE ""
-        list.add(new CustomFieldValue(PHONE, phoneList));
+        ContactPhone.Type phoneType = ContactPhone.Type.WORK;
+        if (!input.getPhone().isBlank()) {
+            phoneList.add(new Value(new ContactPhone(input.getPhone(), phoneType)));
+            phoneType = ContactPhone.Type.MOBILE;
+        }
+        if (!input.getMobilePhone().isBlank()) {
+            phoneList.add(new Value(new ContactPhone(input.getMobilePhone(), phoneType)));
+        }
+        if (!phoneList.isEmpty()) {
+            list.add(new CustomFieldValue(PHONE, phoneList));
+        }
 
         List<Value> emailList = new ArrayList<>();
-        emailList.add(new Value(new ContactEmail(input.getEmail(), ContactEmail.Type.WORK))); // WORK? PERSONALITY? OTHER?
-        emailList.add(new Value(new ContactEmail(input.getAlternativeEmail(), ContactEmail.Type.OTHER))); // CAN BE ""
-        list.add(new CustomFieldValue(EMAIL, emailList));
+        if (!input.getEmail().isBlank()) {
+            emailList.add(new Value(new ContactEmail(input.getEmail(), ContactEmail.Type.WORK)));
+        }
+        if (!input.getAlternativeEmail().isBlank()) {
+            emailList.add(new Value(new ContactEmail(input.getAlternativeEmail(), ContactEmail.Type.WORK)));
+        }
+        if (!emailList.isEmpty()) {
+            list.add(new CustomFieldValue(EMAIL, emailList));
+        }
 
         list.add(new CustomFieldValue(TYPE, singleValue(ContactType.of(input.getType()))));
 
-        list.add(new CustomFieldValue(DEAR, singleValue(ContactDear.of(input.getDear()))));
-
-        list.add(new CustomFieldValue(IO, singleValue(input.getIo())));
-
-        list.add(new CustomFieldValue(ROLE, singleValue(ContactRole.of(input.getRole()))));
-
-        list.add(new CustomFieldValue(DEPARTMENT, singleValue(ContactDepartment.of(input.getDepartment()))));
-
-        List<Value> events = new ArrayList<>();
-        for (String event : input.getUsrOldEvents().split(" ")) {
-            if (ContactEvent.contains(event)) {
-                events.add(new Value(ContactEvent.of(event)));
-            }
+        if (!input.getDear().isBlank()) {
+            list.add(new CustomFieldValue(DEAR, singleValue(ContactDear.of(input.getDear()))));
         }
-        list.add(new CustomFieldValue(EVENTS, events));
 
-        list.add(new CustomFieldValue(DISC_CARD, singleValue(input.getUsrDiscCard())));
+        if (!input.getIo().isBlank()) {
+            list.add(new CustomFieldValue(IO, singleValue(input.getIo())));
+        }
 
-        list.add(new CustomFieldValue(MODERATION, singleValue(input.getModeration())));
+        if (input.getRole() != null) {
+            list.add(new CustomFieldValue(ROLE, singleValue(ContactRole.of(input.getRole()))));
+        }
 
-        list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontakta())));
+        if (input.getDepartment() != null) {
+            list.add(new CustomFieldValue(DEPARTMENT, singleValue(ContactDepartment.of(input.getDepartment()))));
+        }
+
+        if (!input.getUsrOldEvents().isBlank()) {
+            List<Value> events = new ArrayList<>();
+            for (String event : input.getUsrOldEvents().split(" ")) {
+                if (ContactEvent.contains(event)) {
+                    events.add(new Value(ContactEvent.of(event)));
+                }
+            }
+            list.add(new CustomFieldValue(EVENTS, events));
+        }
+
+        if (!input.getUsrDiscCard().isBlank()) {
+            list.add(new CustomFieldValue(DISC_CARD, singleValue(input.getUsrDiscCard())));
+        }
+
+        if (input.getModeration() != null) {
+            list.add(new CustomFieldValue(MODERATION, singleValue(input.getModeration())));
+        }
+
+        if (!input.getUsrPrimKontakta().isBlank()) {
+            list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontakta())));
+        }
 
         return list;
     }
