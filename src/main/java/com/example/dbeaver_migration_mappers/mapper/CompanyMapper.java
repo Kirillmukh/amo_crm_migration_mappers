@@ -1,26 +1,36 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
+import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
+import com.example.dbeaver_migration_mappers.client.DefaultAmoCRMRestClientImpl;
+import com.example.dbeaver_migration_mappers.client.EntityType;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
+import com.example.dbeaver_migration_mappers.output_models.embedded.EmbeddedCompany;
 import com.example.dbeaver_migration_mappers.output_models.response.OutputCompany;
 import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
+import com.example.dbeaver_migration_mappers.output_models.util.Tag;
 import com.example.dbeaver_migration_mappers.output_models.util.Value;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.dbeaver_migration_mappers.output_models.constants.CompanyFieldsID.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface CompanyMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {AmoCRMRestClient.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+public abstract class CompanyMapper {
+    @Autowired
+    protected AmoCRMRestClient restClient;
 
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
-    OutputCompany mapToOutput(InputCompany inputCompany);
-    default List<CustomFieldValue> setCustomFields(InputCompany input) {
+    @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")
+    public abstract OutputCompany mapToOutput(InputCompany inputCompany);
+    public List<CustomFieldValue> setCustomFields(InputCompany input) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(ALTERNATIVE_NAME, singleValue(input.getAlternativeName())));
 
@@ -76,5 +86,17 @@ public interface CompanyMapper {
     }
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
+    }
+    public EmbeddedCompany setEmbeddedCompany(String events) {
+        if (events.isBlank()) return null;
+        List<Tag> tags = new ArrayList<>();
+
+        for (String event : events.split(" ")) {
+            tags.add(new Tag(event, null));
+        }
+
+        tags = restClient.createTags(tags, EntityType.COMPANY);
+
+        return new EmbeddedCompany(tags);
     }
 }

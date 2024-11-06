@@ -10,7 +10,7 @@ public class ContactFieldsID {
     public static final int EMAIL = 1720453;
     public static final int TYPE = 2922033;
     public static final int DEAR = 2922037;
-    public static final int IO = 3013405; // Обращение
+    public static final int IO = 3013405;
     public static final int ROLE = 2922043;
     public static final int DEPARTMENT = 2967615;
     public static final int EVENTS = 3022555;
