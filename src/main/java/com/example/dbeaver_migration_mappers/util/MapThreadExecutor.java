@@ -30,8 +30,4 @@ public class MapThreadExecutor {
             }
         }
     }
-    @PreDestroy
-    public void onDelete() {
-        executorService.close();
-    }
 }
