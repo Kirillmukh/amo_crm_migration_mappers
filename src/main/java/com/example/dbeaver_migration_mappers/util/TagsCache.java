@@ -6,7 +6,6 @@ import com.example.dbeaver_migration_mappers.crm_models.util.ResponseLinks;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 import com.example.dbeaver_migration_mappers.util.file.FileUtil;
-import com.example.dbeaver_migration_mappers.util.MapThreadExecutor;
 import com.example.dbeaver_migration_mappers.util.file.exception.FileReadingException;
 import com.example.dbeaver_migration_mappers.util.file.exception.FileWritingException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +29,7 @@ public class TagsCache {
     private final AmoCRMRestClient amoCRMRestClient;
     private final ObjectMapper mapper;
     private final Map<String, Integer> map = new HashMap<>();
-    private final MapThreadExecutor mapThreadExecutor;
+    private final StringThreadExecutor stringThreadExecutor;
     @PostConstruct
     void init() throws JsonProcessingException, FileWritingException, FileReadingException {
         if (fileUtil.isCreatedFile()) {
@@ -67,8 +66,8 @@ public class TagsCache {
             result.addAll(tagsToCreate);
 
             try {
-                mapThreadExecutor.setData(mapper.writeValueAsString(map));
-                mapThreadExecutor.update(string -> {
+                stringThreadExecutor.setData(mapper.writeValueAsString(map));
+                stringThreadExecutor.update(string -> {
                     try {
                         fileUtil.write(string);
                     } catch (FileWritingException e) {
