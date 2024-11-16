@@ -1,6 +1,6 @@
-package com.example.dbeaver_migration_mappers.output_models.response;
+package com.example.dbeaver_migration_mappers.crm_models.response;
 
-import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
+import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OutputContact {
+public class CRMContact {
     private String name;
     private String firstName;
     @JsonProperty("custom_fields_values")

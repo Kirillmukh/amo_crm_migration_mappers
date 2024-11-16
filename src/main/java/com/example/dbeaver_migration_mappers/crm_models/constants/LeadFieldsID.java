@@ -1,4 +1,4 @@
-package com.example.dbeaver_migration_mappers.output_models.constants;
+package com.example.dbeaver_migration_mappers.crm_models.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

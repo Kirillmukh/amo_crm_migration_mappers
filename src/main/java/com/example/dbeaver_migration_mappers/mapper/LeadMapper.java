@@ -1,9 +1,9 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
-import com.example.dbeaver_migration_mappers.output_models.response.OutputLead;
-import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
-import com.example.dbeaver_migration_mappers.output_models.util.Value;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
+import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -11,7 +11,7 @@ import org.mapstruct.MappingConstants;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.dbeaver_migration_mappers.output_models.constants.LeadFieldsID.*;
+import static com.example.dbeaver_migration_mappers.crm_models.constants.LeadFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface LeadMapper {
@@ -19,7 +19,7 @@ public interface LeadMapper {
     @Mapping(target = "name", source = "opportunity")
     @Mapping(target = "price", source = "budget")
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputLead))")
-    OutputLead mapToOutput(InputLead inputLead);
+    CRMLead mapToOutput(InputLead inputLead);
 
     default List<CustomFieldValue> setCustomFields(InputLead inputLead) {
         List<CustomFieldValue> list = new ArrayList<>();

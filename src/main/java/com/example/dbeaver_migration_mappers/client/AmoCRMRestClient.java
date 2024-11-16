@@ -1,11 +1,13 @@
 package com.example.dbeaver_migration_mappers.client;
 
-import com.example.dbeaver_migration_mappers.output_models.response.OutputCompany;
-import com.example.dbeaver_migration_mappers.output_models.util.Tag;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
+import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 
 import java.util.List;
 
 public interface AmoCRMRestClient {
-    OutputCompany getCompanies(int id);
-    List<Tag> createTags(List<Tag> tags, EntityType entityType);
+    CRMCompany getCompanies(int id);
+    ResponseTag createTags(List<Tag> tags, EntityType entityType);
+    ResponseTag getTags(EntityType et, int page);
 }

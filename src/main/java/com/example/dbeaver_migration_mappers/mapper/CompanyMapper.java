@@ -1,16 +1,15 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
-import com.example.dbeaver_migration_mappers.client.DefaultAmoCRMRestClientImpl;
-import com.example.dbeaver_migration_mappers.client.EntityType;
+import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedCompany;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
+import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
+import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
-import com.example.dbeaver_migration_mappers.output_models.embedded.EmbeddedCompany;
-import com.example.dbeaver_migration_mappers.output_models.response.OutputCompany;
-import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
-import com.example.dbeaver_migration_mappers.output_models.util.Tag;
-import com.example.dbeaver_migration_mappers.output_models.util.Value;
+import com.example.dbeaver_migration_mappers.util.TagsCache;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,16 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.dbeaver_migration_mappers.output_models.constants.CompanyFieldsID.*;
+import static com.example.dbeaver_migration_mappers.crm_models.constants.CompanyFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {AmoCRMRestClient.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class CompanyMapper {
     @Autowired
     protected AmoCRMRestClient restClient;
+    @Autowired
+    protected TagsCache tagsCache;
 
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
     @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")
-    public abstract OutputCompany mapToOutput(InputCompany inputCompany);
+    public abstract CRMCompany mapToOutput(InputCompany inputCompany);
     public List<CustomFieldValue> setCustomFields(InputCompany input) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(ALTERNATIVE_NAME, singleValue(input.getAlternativeName())));
@@ -95,7 +96,7 @@ public abstract class CompanyMapper {
             tags.add(new Tag(event, null));
         }
 
-        tags = restClient.createTags(tags, EntityType.COMPANY);
+        tags = tagsCache.getTags(tags);
 
         return new EmbeddedCompany(tags);
     }

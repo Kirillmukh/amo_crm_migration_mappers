@@ -1,12 +1,11 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
-import com.example.dbeaver_migration_mappers.enums.company.CompanyModeration;
 import com.example.dbeaver_migration_mappers.enums.contact.*;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
-import com.example.dbeaver_migration_mappers.output_models.response.OutputContact;
-import com.example.dbeaver_migration_mappers.output_models.util.CustomFieldValue;
-import com.example.dbeaver_migration_mappers.output_models.util.Value;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMContact;
+import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
+import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -14,13 +13,13 @@ import org.mapstruct.MappingConstants;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.dbeaver_migration_mappers.output_models.constants.ContactFieldsID.*;
+import static com.example.dbeaver_migration_mappers.crm_models.constants.ContactFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ContactMapper {
     @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(inputContact))")
     @Mapping(target = "firstName", source = "name")
-    OutputContact mapToOutput(InputContact inputContact);
+    CRMContact mapToOutput(InputContact inputContact);
 
     default List<CustomFieldValue> setCustomFieldValues(InputContact input) {
         List<CustomFieldValue> list = new ArrayList<>();
