@@ -3,8 +3,6 @@ package com.example.dbeaver_migration_mappers.client.database;
 import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.client.RestClient;
 
@@ -30,7 +28,7 @@ public class CompanyDatabaseRestClient implements DatabaseRestClient  {
     }
 
     @Override
-    public Response request(@DateTimeFormat(pattern = "${config.date_format}") LocalDate date, int limit, int offset) {
+    public Response request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date, int limit, int offset) {
         return restClient.get()
                 .uri("company?limit={limit}&offset={offset}&date={date}", limit, offset, date)
                 .retrieve()
@@ -46,7 +44,7 @@ public class CompanyDatabaseRestClient implements DatabaseRestClient  {
     }
 
     @Override
-    public Response requestById(String id, @DateTimeFormat(pattern = "${config.date_format}") LocalDate date) {
+    public Response requestById(String id, @DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date) {
         return restClient.get()
                 .uri("company/{id}?date={date}", id, date)
                 .retrieve()

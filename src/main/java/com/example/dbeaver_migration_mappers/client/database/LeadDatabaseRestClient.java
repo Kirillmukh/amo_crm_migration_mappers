@@ -28,7 +28,7 @@ public class LeadDatabaseRestClient implements DatabaseRestClient  {
     }
 
     @Override
-    public Response request(@DateTimeFormat(pattern = "${config.date_format}") LocalDate date, int limit, int offset) {
+    public Response request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date, int limit, int offset) {
         return restClient.get()
                 .uri("lead?limit={limit}&offset={offset}&date={date}", limit, offset, date)
                 .retrieve()
@@ -44,7 +44,7 @@ public class LeadDatabaseRestClient implements DatabaseRestClient  {
     }
 
     @Override
-    public Response requestById(String id, @DateTimeFormat(pattern = "${config.date_format}") LocalDate date) {
+    public Response requestById(String id, @DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date) {
         return restClient.get()
                 .uri("lead/{id}?date={date}", id, date)
                 .retrieve()
