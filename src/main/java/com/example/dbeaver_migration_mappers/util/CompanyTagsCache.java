@@ -1,10 +1,11 @@
 package com.example.dbeaver_migration_mappers.util;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
-import com.example.dbeaver_migration_mappers.client.EntityType;
+import com.example.dbeaver_migration_mappers.client.crm.EntityType;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseLinks;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
+import com.example.dbeaver_migration_mappers.util.executors.StringThreadExecutor;
 import com.example.dbeaver_migration_mappers.util.file.FileUtil;
 import com.example.dbeaver_migration_mappers.util.file.exception.FileReadingException;
 import com.example.dbeaver_migration_mappers.util.file.exception.FileWritingException;
@@ -12,7 +13,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,16 +23,15 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class TagsCache {
-    private final FileUtil fileUtil;
+public class CompanyTagsCache {
+    private final FileUtil companyFile;
     private final AmoCRMRestClient amoCRMRestClient;
     private final ObjectMapper mapper;
     private final Map<String, Integer> map = new HashMap<>();
-    private final StringThreadExecutor stringThreadExecutor;
+    private final StringThreadExecutor companyExecutor;
     @PostConstruct
     void init() throws JsonProcessingException, FileWritingException, FileReadingException {
-        if (fileUtil.isCreatedFile()) {
+        if (companyFile.isCreatedFile()) {
             List<Tag> tagsList = new ArrayList<>();
             ResponseLinks responseLinks;
             ResponseTag request;
@@ -42,12 +41,11 @@ public class TagsCache {
                 tagsList.addAll(request._embedded().tags());
                 responseLinks = request.links();
             } while (responseLinks.next() != null);
-            log.info(tagsList.toString());
             Map<String, Integer> collect = tagsList.stream().filter(t -> !t.name().startsWith("C&amp;B10")).collect(Collectors.toMap(Tag::name, Tag::id));
             map.putAll(collect);
-            fileUtil.write(mapper.writeValueAsString(map));
+            companyFile.write(mapper.writeValueAsString(map));
         } else {
-            map.putAll(mapper.readValue(fileUtil.readFile(), map.getClass()));
+            map.putAll(mapper.readValue(companyFile.readFile(), map.getClass()));
         }
     }
     public List<Tag> getTags(List<Tag> tags) {
@@ -66,10 +64,10 @@ public class TagsCache {
             result.addAll(tagsToCreate);
 
             try {
-                stringThreadExecutor.setData(mapper.writeValueAsString(map));
-                stringThreadExecutor.update(string -> {
+                companyExecutor.setData(mapper.writeValueAsString(map));
+                companyExecutor.update(string -> {
                     try {
-                        fileUtil.write(string);
+                        companyFile.write(string);
                     } catch (FileWritingException e) {
                         throw new RuntimeException(e);
                     }

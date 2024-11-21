@@ -6,7 +6,6 @@ import com.example.dbeaver_migration_mappers.util.file.exception.FileWritingExce
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-@Component
 @Slf4j
 public class FileUtil {
     @Getter

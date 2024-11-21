@@ -1,7 +1,6 @@
 package com.example.dbeaver_migration_mappers.util.file;
 
 import com.example.dbeaver_migration_mappers.DbeaverMigrationMappersApplication;
-import com.example.dbeaver_migration_mappers.util.file.exception.FileCreationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +18,7 @@ public class FileConfig {
         return file.getPath();
     }
     @Bean
-    FileUtil fileUtil() throws FileCreationException {
-        return new FileUtil(getTargetDirectory(), "data.json");
+    public FileUtil companyFile() {
+        return new FileUtil(getTargetDirectory(), "company_data.json");
     }
 }

@@ -9,7 +9,7 @@ import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
-import com.example.dbeaver_migration_mappers.util.TagsCache;
+import com.example.dbeaver_migration_mappers.util.CompanyTagsCache;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,7 +26,7 @@ public abstract class CompanyMapper {
     @Autowired
     protected AmoCRMRestClient restClient;
     @Autowired
-    protected TagsCache tagsCache;
+    protected CompanyTagsCache tagsCache;
 
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
     @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")

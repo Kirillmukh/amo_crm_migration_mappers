@@ -1,4 +1,4 @@
-package com.example.dbeaver_migration_mappers.client;
+package com.example.dbeaver_migration_mappers.client.crm;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
