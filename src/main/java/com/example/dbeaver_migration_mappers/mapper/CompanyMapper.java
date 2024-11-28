@@ -31,6 +31,7 @@ public abstract class CompanyMapper {
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
     @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")
     public abstract CRMCompany mapToOutput(InputCompany inputCompany);
+    public abstract List<CRMCompany> mapToOutput(List<InputCompany> inputCompanies);
     public List<CustomFieldValue> setCustomFields(InputCompany input) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(ALTERNATIVE_NAME, singleValue(input.getAlternativeName())));

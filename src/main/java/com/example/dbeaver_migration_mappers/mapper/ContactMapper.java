@@ -20,6 +20,7 @@ public interface ContactMapper {
     @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(inputContact))")
     @Mapping(target = "firstName", source = "name")
     CRMContact mapToOutput(InputContact inputContact);
+    List<CRMContact> mapToOutput(List<InputContact> inputContacts);
 
     default List<CustomFieldValue> setCustomFieldValues(InputContact input) {
         List<CustomFieldValue> list = new ArrayList<>();

@@ -20,7 +20,7 @@ public interface LeadMapper {
     @Mapping(target = "price", source = "budget")
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputLead))")
     CRMLead mapToOutput(InputLead inputLead);
-
+    List<CRMLead> mapToOutput(List<InputLead> inputLeads);
     default List<CustomFieldValue> setCustomFields(InputLead inputLead) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(COMMENTARY, singleValue(inputLead.getCommentary())));
