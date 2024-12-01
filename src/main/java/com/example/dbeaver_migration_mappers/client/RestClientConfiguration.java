@@ -1,10 +1,15 @@
 package com.example.dbeaver_migration_mappers.client;
 
 import com.example.dbeaver_migration_mappers.client.crm.DefaultAmoCRMRestClientImpl;
-import com.example.dbeaver_migration_mappers.client.database.CompanyDatabaseRestClient;
-import com.example.dbeaver_migration_mappers.client.database.ContactDatabaseRestClient;
-import com.example.dbeaver_migration_mappers.client.database.LeadDatabaseRestClient;
-import com.example.dbeaver_migration_mappers.client.database.OpportunityDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.database.HateoasCompanyDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.database.HateoasContactDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.database.HateoasLeadDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.database.HateoasOpportunityDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestCompany;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestContact;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestOpportunity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,31 +29,31 @@ public class RestClientConfiguration {
         return new DefaultAmoCRMRestClientImpl(restClient);
     }
     @Bean
-    public DatabaseRestClient companyDatabaseRestClient() {
+    public DatabaseRestClient<RequestCompany, ListHateoasEntity<RequestCompany>> companyDatabaseRestClient() {
         RestClient restClient = RestClient.builder()
                 .baseUrl(databaseUrl)
                 .build();
-        return new CompanyDatabaseRestClient(restClient);
+        return new HateoasCompanyDatabaseRestClient(restClient);
     }
     @Bean
-    public DatabaseRestClient contactDatabaseRestClient() {
+    public DatabaseRestClient<RequestContact, ListHateoasEntity<RequestContact>> contactDatabaseRestClient() {
         RestClient restClient = RestClient.builder()
                 .baseUrl(databaseUrl)
                 .build();
-        return new ContactDatabaseRestClient(restClient);
+        return new HateoasContactDatabaseRestClient(restClient);
     }
     @Bean
-    public DatabaseRestClient leadDatabaseRestClient() {
+    public DatabaseRestClient<RequestLead, ListHateoasEntity<RequestLead>> leadDatabaseRestClient() {
         RestClient restClient = RestClient.builder()
                 .baseUrl(databaseUrl)
                 .build();
-        return new LeadDatabaseRestClient(restClient);
+        return new HateoasLeadDatabaseRestClient(restClient);
     }
     @Bean
-    public DatabaseRestClient opportunityDatabaseRestClient() {
+    public DatabaseRestClient<RequestOpportunity, ListHateoasEntity<RequestOpportunity>> opportunityDatabaseRestClient() {
         RestClient restClient = RestClient.builder()
                 .baseUrl(databaseUrl)
                 .build();
-        return new OpportunityDatabaseRestClient(restClient);
+        return new HateoasOpportunityDatabaseRestClient(restClient);
     }
 }

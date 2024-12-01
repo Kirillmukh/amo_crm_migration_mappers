@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum EntityType {
-    CONTACT("contacts"),
-    LEAD("leads"),
-    COMPANY("companies");
-    private final String name;
+    CONTACT("contact", "contacts"),
+    LEAD("lead", "leads"),
+    COMPANY("company", "companies");
+    private final String value;
+    private final String values;
 }

@@ -1,14 +1,14 @@
 package com.example.dbeaver_migration_mappers.client;
 
-import jakarta.ws.rs.core.Response;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-public interface DatabaseRestClient {
-    Response request();
-    Response request(int limit, int offset);
-    Response request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date, int limit, int offset);
-    Response requestById(String id);
-    Response requestById(String id, @DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date);
+public interface DatabaseRestClient<T, ListOfT> {
+    Optional<ListOfT> request();
+    Optional<ListOfT> request(int limit, int offset);
+    Optional<ListOfT> request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date, int limit, int offset);
+    Optional<T> requestById(String id);
+    Optional<T> requestById(String id, @DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date);
 }

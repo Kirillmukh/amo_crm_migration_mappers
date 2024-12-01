@@ -1,8 +1,9 @@
 package com.example.dbeaver_migration_mappers.controller;
 
-import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
+import com.example.dbeaver_migration_mappers.controller.payload.GUIDListWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMLead;
+import com.example.dbeaver_migration_mappers.facade.ApplicationFacade;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
 import com.example.dbeaver_migration_mappers.mapper.CompanyMapper;
@@ -18,20 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class CrmRestRequestController {
     private final LeadMapper leadMapper;
     private final CompanyMapper companyMapper;
-    private final AmoCRMRestClient restClient;
+    private final ApplicationFacade applicationFacade;
 
-    @PostMapping("lead")
+    @PostMapping("test_lead")
     public CRMLead handleLead(@RequestBody InputLead inputLead) {
         return leadMapper.mapToOutput(inputLead);
     }
 
-    @PostMapping("company")
+    @PostMapping("test_company")
     public CRMCompany handleCompany(@RequestBody InputCompany inputCompany) {
         return companyMapper.mapToOutput(inputCompany);
     }
 
-    @GetMapping("client")
-    public CRMCompany useClient() {
-        return restClient.getCompanies(33057267);
+    @GetMapping
+    public void handle() {
+        applicationFacade.transferComplexCompany();
+    }
+    @PostMapping
+    public Object loadByUUID(@RequestBody GUIDListWrapper guids) {
+        applicationFacade.loadCompaniesByUUID(guids.guids());
+        // TODO: 01.12.2024
+        return "error";
     }
 }

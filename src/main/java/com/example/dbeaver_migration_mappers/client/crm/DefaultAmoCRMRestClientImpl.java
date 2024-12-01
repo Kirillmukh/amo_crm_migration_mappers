@@ -26,7 +26,7 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
 
     @Override
     public ResponseTag createTags(List<Tag> tags, EntityType entityType) {
-        String type = entityType.getName();
+        String type = entityType.getValues();
         return restClient.post()
                 .uri("{type}/tags", type)
                 .body(tags)
@@ -36,7 +36,7 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
 
     @Override
     public ResponseTag getTags(EntityType entityType, int page) {
-        String type = entityType.getName();
+        String type = entityType.getValues();
         return restClient.get()
                 .uri("{type}/tags?page={page}&limit=250", type, page)
                 .retrieve()

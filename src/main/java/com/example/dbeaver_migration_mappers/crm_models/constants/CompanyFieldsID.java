@@ -1,10 +1,9 @@
 package com.example.dbeaver_migration_mappers.crm_models.constants;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompanyFieldsID {
+    private CompanyFieldsID() {
+        throw new AssertionError();
+    }
     public static final int ALTERNATIVE_NAME = 2922055;
     public static final int PHONE = 1720451;
     public static final int EMAIL = 1720453;

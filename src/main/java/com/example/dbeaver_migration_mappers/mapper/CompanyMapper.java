@@ -24,10 +24,7 @@ import static com.example.dbeaver_migration_mappers.crm_models.constants.Company
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {AmoCRMRestClient.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class CompanyMapper {
     @Autowired
-    protected AmoCRMRestClient restClient;
-    @Autowired
     protected CompanyTagsCache tagsCache;
-
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
     @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")
     public abstract CRMCompany mapToOutput(InputCompany inputCompany);
