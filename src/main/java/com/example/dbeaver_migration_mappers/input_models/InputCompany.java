@@ -5,6 +5,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InputCompany {
+    private String id;
     private String name;
     private String alternativeName;
     private String type; // TypeId -> name

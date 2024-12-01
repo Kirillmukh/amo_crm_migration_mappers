@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InputContact {
+    private String id;
     private String name; // contact -> name
     private String jobTitle; // contact -> jobTitle
     private String company; // accountId -> name

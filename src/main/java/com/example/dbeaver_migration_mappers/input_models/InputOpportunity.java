@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class InputOpportunity {
+    private String id;
     private String title;
     private String usrEventInOpportunity; // usrEventInOpportunityId (Event.java) -> name
     private double amount;
