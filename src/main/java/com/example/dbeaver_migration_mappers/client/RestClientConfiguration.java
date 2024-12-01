@@ -16,12 +16,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfiguration {
-    @Value("${config.databaseUrl}")
+    @Value("${config.database.baseUrl}")
     private String databaseUrl;
     @Bean
     public AmoCRMRestClient amoCRMRestClient(
-            @Value("${config.baseUrl}") String baseUrl,
-            @Value("${config.token}") String token) {
+            @Value("${config.crm.baseUrl}") String baseUrl,
+            @Value("${config.crm.token}") String token) {
         RestClient restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("authorization", "Bearer " + token)
