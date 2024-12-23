@@ -36,8 +36,8 @@ public class CrmRestRequestController {
         applicationFacade.transferComplexCompany();
     }
     @PostMapping
-    public Object loadByUUID(@RequestBody GUIDListWrapper guids) {
-        applicationFacade.loadCompaniesByUUID(guids.guids());
+    public Object loadByUUID(@RequestBody GUIDListWrapper wrapper) {
+        applicationFacade.loadCompaniesByUUID(wrapper.guids());
         // TODO: 01.12.2024
         return "error";
     }

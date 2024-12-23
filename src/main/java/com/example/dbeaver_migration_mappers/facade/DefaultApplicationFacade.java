@@ -3,7 +3,6 @@ package com.example.dbeaver_migration_mappers.facade;
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
 import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
-import com.example.dbeaver_migration_mappers.crm_models.response.CRMComplexCompany;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMLead;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
@@ -11,6 +10,7 @@ import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompany;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
 import com.example.dbeaver_migration_mappers.mapper.CompanyMapper;
 import com.example.dbeaver_migration_mappers.mapper.ContactMapper;
 import com.example.dbeaver_migration_mappers.mapper.LeadMapper;
@@ -27,6 +27,7 @@ import java.util.Optional;
 @Slf4j
 public class DefaultApplicationFacade implements ApplicationFacade {
     private final DatabaseRestClient<RequestCompany, ListHateoasEntity<RequestCompany>> companyDatabaseRestClient;
+    private final DatabaseRestClient<RequestLead, ListHateoasEntity<RequestLead>> leadDatabaseRestClient;
     private final AmoCRMRestClient amoCRMRestClient;
     private final CompanyMapper companyMapper;
     private final ContactMapper contactMapper;
@@ -36,6 +37,7 @@ public class DefaultApplicationFacade implements ApplicationFacade {
     @Value("${config.crm.request.limit}")
     private int requestLimit;
 
+    // TODO: 05.12.2024 DELETE THIS METHOD
     @Override
     public void transferComplexCompany() {
         Optional<ListHateoasEntity<RequestCompany>> optionalHateoasRequest = companyDatabaseRestClient.request();
@@ -64,13 +66,17 @@ public class DefaultApplicationFacade implements ApplicationFacade {
             проверить на null crmCompany, crmContacts, crmLeads перед загрузкой в CRM
              */
 
-            CRMComplexCompany complexCompanyCRM = new CRMComplexCompany(crmCompany, crmContacts, crmLeads);
+//            CRMComplexCompany complexCompanyCRM = new CRMComplexCompany(crmCompany, crmContacts, crmLeads);
 
-            amoCRMRestClient.createComplexCompany(complexCompanyCRM);
+//            amoCRMRestClient.createComplexCompany(complexCompanyCRM);
 
         });
     }
+    public void transferComplexLead() {
+        Optional<ListHateoasEntity<RequestLead>> optionalHateoasRequest = leadDatabaseRestClient.request();
+    }
 
+    // delete this method
     @Override
     public void loadCompaniesByUUID(List<String> guids) {
         guids.forEach(guid -> {
@@ -80,7 +86,7 @@ public class DefaultApplicationFacade implements ApplicationFacade {
                 throw new RuntimeException("HateoasCompanyDatabaseRestClient.class return response with empty entity for id = " + guid);
             }
             RequestCompany hateoasRequestCompany = optionalHateoasRequest.get();
-
+            // TODO: 05.12.2024 send request
         });
     }
 }
