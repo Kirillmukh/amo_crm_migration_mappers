@@ -1,6 +1,5 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
-import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
 import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedCompany;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
@@ -17,12 +16,18 @@ import org.mapstruct.MappingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.example.dbeaver_migration_mappers.crm_models.constants.CompanyFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class CompanyMapper {
+    // TODO: 28.12.2024 check this pattern
+    private static final Pattern pattern = Pattern.compile("\\w{2,3}\\d{2}/\\d\\w?+");
     @Autowired
     protected CompanyTagsCache tagsCache;
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
@@ -88,14 +93,17 @@ public abstract class CompanyMapper {
     }
     public EmbeddedCompany setEmbeddedCompany(String events) {
         if (events.isBlank()) return null;
-        List<Tag> tags = new ArrayList<>();
-
-        for (String event : events.split(" ")) {
-            tags.add(new Tag(event, null));
-        }
+        List<Tag> tags = Arrays.stream(events.split(" "))
+                .filter(this::correctEvent)
+                .map(event -> new Tag(event, null))
+                .collect(Collectors.toList());
 
         tags = tagsCache.getTags(tags);
 
         return new EmbeddedCompany(tags);
+    }
+    public boolean correctEvent(String event) {
+        Matcher matcher = pattern.matcher(event);
+        return matcher.matches();
     }
 }
