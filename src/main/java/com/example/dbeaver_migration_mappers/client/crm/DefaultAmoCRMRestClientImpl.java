@@ -1,6 +1,7 @@
 package com.example.dbeaver_migration_mappers.client.crm;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
@@ -40,6 +41,14 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
                 .uri("{type}/tags?page={page}&limit=250", type, page)
                 .retrieve()
                 .body(ResponseTag.class);
+    }
+
+    @Override
+    public void createComplexLead(CRMComplexLead crmComplexLead) {
+        restClient.post()
+                .uri("leads/complex")
+                .body(crmComplexLead.crmLead())
+                .retrieve();
     }
 
 //    @Override

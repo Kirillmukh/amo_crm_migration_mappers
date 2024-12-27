@@ -23,7 +23,7 @@ public class CrmRestRequestController {
 
     @PostMapping("test_lead")
     public CRMLead handleLead(@RequestBody InputLead inputLead) {
-        return leadMapper.mapToOutput(inputLead);
+        return leadMapper.mapInputLead(inputLead);
     }
 
     @PostMapping("test_company")

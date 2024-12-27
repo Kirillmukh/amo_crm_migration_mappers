@@ -5,6 +5,7 @@ import com.example.dbeaver_migration_mappers.client.database.HateoasCompanyDatab
 import com.example.dbeaver_migration_mappers.client.database.HateoasContactDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasLeadDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasOpportunityDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.hateoas_link.LeadHateoasRestClient;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompany;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestContact;
@@ -55,5 +56,12 @@ public class RestClientConfiguration {
                 .baseUrl(databaseUrl)
                 .build();
         return new HateoasOpportunityDatabaseRestClient(restClient);
+    }
+
+    @Bean
+    public LeadHateoasRestClient leadHateoasRestClient() {
+        RestClient restClient = RestClient.builder()
+                .build();
+        return new LeadHateoasRestClient(restClient);
     }
 }

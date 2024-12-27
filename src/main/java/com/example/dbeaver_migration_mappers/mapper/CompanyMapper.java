@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.example.dbeaver_migration_mappers.crm_models.constants.CompanyFieldsID.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {AmoCRMRestClient.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class CompanyMapper {
     @Autowired
     protected CompanyTagsCache tagsCache;

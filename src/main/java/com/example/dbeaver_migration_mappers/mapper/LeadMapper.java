@@ -1,12 +1,19 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
+import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedLead;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMContact;
+import com.example.dbeaver_migration_mappers.input_models.InputCompany;
+import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMLead;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +21,18 @@ import java.util.List;
 import static com.example.dbeaver_migration_mappers.crm_models.constants.LeadFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface LeadMapper {
+public abstract class LeadMapper {
+    @Autowired
+    protected ContactMapper contactMapper;
+    @Autowired
+    protected CompanyMapper companyMapper;
 
     @Mapping(target = "name", source = "opportunity")
     @Mapping(target = "price", source = "budget")
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputLead))")
-    CRMLead mapToOutput(InputLead inputLead);
-    List<CRMLead> mapToOutput(List<InputLead> inputLeads);
-    default List<CustomFieldValue> setCustomFields(InputLead inputLead) {
+    public abstract CRMLead mapInputLead(InputLead inputLead);
+    public abstract List<CRMLead> mapInputLead(List<InputLead> inputLeads);
+    protected List<CustomFieldValue> setCustomFields(InputLead inputLead) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(COMMENTARY, singleValue(inputLead.getCommentary())));
         list.add(new CustomFieldValue(LEAD_SOURCE, singleValue(inputLead.getLeadSource())));
@@ -30,5 +41,18 @@ public interface LeadMapper {
     }
     private List<Value> singleValue(String value) {
         return List.of(new Value(value));
+    }
+
+    @Mapping(target = "embeddedLead", expression = "java(setEmbeddedLead(requestLead))")
+    public abstract CRMLead mapRequestLead(RequestLead requestLead);
+    public abstract List<CRMLead> mapRequestLead(List<RequestLead> requestLeads);
+    protected EmbeddedLead setEmbeddedLead(RequestLead requestLead) {
+        InputCompany company = requestLead.getCompany();
+        List<InputContact> contacts = requestLead.getContacts();
+
+        CRMCompany crmCompany = companyMapper.mapToOutput(company);
+        List<CRMContact> crmContacts = contactMapper.mapToOutput(contacts);
+
+        return new EmbeddedLead(crmContacts, List.of(crmCompany), new ArrayList<>());
     }
 }
