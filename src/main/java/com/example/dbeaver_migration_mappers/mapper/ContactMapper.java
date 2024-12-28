@@ -3,7 +3,7 @@ package com.example.dbeaver_migration_mappers.mapper;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.contact.*;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
-import com.example.dbeaver_migration_mappers.crm_models.response.CRMContact;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import org.mapstruct.Mapper;

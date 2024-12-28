@@ -2,7 +2,8 @@ package com.example.dbeaver_migration_mappers.client;
 
 import com.example.dbeaver_migration_mappers.client.crm.EntityType;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
-import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 
@@ -13,6 +14,5 @@ public interface AmoCRMRestClient {
     ResponseTag createTags(List<Tag> tags, EntityType entityType);
     ResponseTag getTags(EntityType et, int page);
     void createComplexLead(CRMComplexLead crmComplexLead);
-
-//    void createComplexCompany(CRMComplexCompany complexCompanyCRM); // TODO return type?
+    void createLead(CRMLead crmLead);
 }

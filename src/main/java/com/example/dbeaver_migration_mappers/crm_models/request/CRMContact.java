@@ -1,6 +1,5 @@
-package com.example.dbeaver_migration_mappers.crm_models.response;
+package com.example.dbeaver_migration_mappers.crm_models.request;
 
-import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedCompany;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,10 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CRMCompany {
+public class CRMContact {
     private String name;
+    @JsonProperty("first_name")
+    private String firstName;
     @JsonProperty("custom_fields_values")
     private List<CustomFieldValue> customFieldValues;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private EmbeddedCompany _embedded;
 }

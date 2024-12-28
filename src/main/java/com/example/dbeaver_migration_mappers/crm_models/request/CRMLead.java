@@ -1,4 +1,4 @@
-package com.example.dbeaver_migration_mappers.crm_models.response;
+package com.example.dbeaver_migration_mappers.crm_models.request;
 
 import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedLead;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;

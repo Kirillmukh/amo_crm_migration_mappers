@@ -2,7 +2,8 @@ package com.example.dbeaver_migration_mappers.client.crm;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
-import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,11 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
                 .retrieve();
     }
 
-//    @Override
-//    public void createComplexCompany(CRMComplexCompany complexCompanyCRM) {
-////         todo
-//    }
+    @Override
+    public void createLead(CRMLead crmLead) {
+        restClient.post()
+                .uri("leads")
+                .body(crmLead)
+                .retrieve();
+    }
 }

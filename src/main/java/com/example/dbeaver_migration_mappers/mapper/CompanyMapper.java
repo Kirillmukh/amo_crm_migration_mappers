@@ -1,7 +1,7 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedCompany;
-import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
