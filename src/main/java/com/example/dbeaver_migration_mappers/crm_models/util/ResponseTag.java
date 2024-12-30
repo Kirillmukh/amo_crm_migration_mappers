@@ -8,5 +8,6 @@ public record ResponseTag(
         @JsonProperty("_links")
         ResponseLinks links,
         EmbeddedTags _embedded
+
 ) {
 }

@@ -1,8 +1,8 @@
 package com.example.dbeaver_migration_mappers.controller;
 
 import com.example.dbeaver_migration_mappers.controller.payload.GUIDListWrapper;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
 import com.example.dbeaver_migration_mappers.facade.ApplicationFacade;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;

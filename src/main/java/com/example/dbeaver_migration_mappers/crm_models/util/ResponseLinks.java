@@ -6,4 +6,5 @@ public record ResponseLinks(
         Link first,
         Link prev
 ) {
+    record Link(String href) {}
 }

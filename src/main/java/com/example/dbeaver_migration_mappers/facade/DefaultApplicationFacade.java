@@ -3,8 +3,8 @@ package com.example.dbeaver_migration_mappers.facade;
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
 import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.HateoasLinkRestClient;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.Link;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
@@ -32,24 +32,27 @@ public class DefaultApplicationFacade implements ApplicationFacade {
     private int requestTimeout;
     @Value("${config.crm.request.limit}")
     private int requestLimit;
+
     @Override
     public void loadComplexLead() {
         // запрос на сервер бд
         List<RequestLead> requestDatabaseLeads = requestContent();
 
         // маппинг под CRM
-        CRMComplexLead crmComplexLead = new CRMComplexLead(leadMapper.mapRequestLead(requestDatabaseLeads));
+        CRMLeadRequest crmLeadRequest = new CRMLeadRequest(leadMapper.mapRequestLead(requestDatabaseLeads));
 
         // группировка по 50 элементов
-        List<CRMComplexLead> crmComplexLeadRequests = groupCRMComplexLead(crmComplexLead);
+        List<CRMLeadRequest> crmLeadRequestRequests = groupCRMLeadRequest(crmLeadRequest);
 
         // запрос в срм в отдельном потоке
-        sendComplexLeads(crmComplexLeadRequests);
+        sendComplexLeads(crmLeadRequestRequests);
 
     }
-    private void sendComplexLeads(List<CRMComplexLead> crmComplexLeadRequests) {
+
+    // TODO: 30.12.2024 save response 
+    private void sendComplexLeads(List<CRMLeadRequest> crmLeadRequestRequests) {
         new Thread(() -> {
-            crmComplexLeadRequests.forEach(requestBody -> {
+            crmLeadRequestRequests.forEach(requestBody -> {
                 amoCRMRestClient.createComplexLead(requestBody);
                 try {
                     Thread.sleep(requestTimeout * 1000L);
@@ -59,17 +62,19 @@ public class DefaultApplicationFacade implements ApplicationFacade {
             });
         }, "Load data to CRM").start();
     }
-    private List<CRMComplexLead> groupCRMComplexLead(CRMComplexLead crmComplexLead) {
-        int size = crmComplexLead.crmLead().size();
+
+    private List<CRMLeadRequest> groupCRMLeadRequest(CRMLeadRequest crmLeadRequest) {
+        int size = crmLeadRequest.crmLead().size();
         size = size / 50 + (size % 50 > 0 ? 1 : 0);
-        List<CRMComplexLead> crmComplexLeadRequests = new ArrayList<>(size);
-        Stream<CRMLead> requestLeadStream = crmComplexLead.crmLead().stream();
+        List<CRMLeadRequest> crmLeadRequestRequests = new ArrayList<>(size);
+        Stream<CRMLead> requestLeadStream = crmLeadRequest.crmLead().stream();
         for (int i = 0; i < size; i++) {
-            crmComplexLeadRequests.add(new CRMComplexLead(requestLeadStream.limit(requestLimit).collect(Collectors.toList())));
+            crmLeadRequestRequests.add(new CRMLeadRequest(requestLeadStream.limit(requestLimit).collect(Collectors.toList())));
             requestLeadStream = requestLeadStream.skip(requestLimit);
         }
-        return crmComplexLeadRequests;
+        return crmLeadRequestRequests;
     }
+
     private List<RequestLead> requestContent() {
         Optional<ListHateoasEntity<RequestLead>> request = leadDatabaseRestClient.request();
         if (request.isEmpty()) {
@@ -97,6 +102,7 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         content.addAll(requestContentHelper(linkToNext));
         return content;
     }
+
     private List<RequestLead> requestContentHelper(Link linkToNext) {
         Optional<ListHateoasEntity<RequestLead>> optionalRequest = hateoasLinkRestClient.request(linkToNext);
 
@@ -123,21 +129,37 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         result.addAll(requestContentHelper(linkToNext));
         return result;
     }
+
     @Override
     public void loadLeadsByGUID(List<String> guids) {
-        guids.forEach(guid -> {
-            Optional<RequestLead> optionalHateoasRequest = leadDatabaseRestClient.requestById(guid);
-            if (optionalHateoasRequest.isEmpty()) {
-                log.error("HateoasLeadDatabaseRestClient class return response with empty entity");
-                throw new RuntimeException("HateoasLeadDatabaseRestClient class return response with empty entity for id = " + guid);
-            }
-            RequestLead hateoasRequestLead = optionalHateoasRequest.get();
+        List<CRMLead> collect = guids.stream()
+                .map(leadDatabaseRestClient::requestById)
+                .map(optional -> {
+                    if (optional.isEmpty()) {
+                        log.error("HateoasLeadDatabaseRestClient class return response with empty entity. Maybe id is wrong");
+                        throw new RuntimeException("HateoasLeadDatabaseRestClient class return response with empty entity");
+                    }
+                    return optional.get();
+                })
+                .map(leadMapper::mapRequestLead)
+                .collect(Collectors.toList());
 
-            // маппинг под CRM
-            CRMLead crmLead = leadMapper.mapRequestLead(hateoasRequestLead);
+        List<CRMLeadRequest> crmLeadRequests = groupCRMLeadRequest(new CRMLeadRequest(collect));
 
-            // запрос в срм
-            amoCRMRestClient.createLead(crmLead);
-        });
+        sendLead(crmLeadRequests);
+    }
+
+    // TODO: 30.12.2024 save response 
+    private void sendLead(List<CRMLeadRequest> crmLeadRequestRequests) {
+        new Thread(() -> {
+            crmLeadRequestRequests.forEach(requestBody -> {
+                amoCRMRestClient.createLead(requestBody);
+                try {
+                    Thread.sleep(requestTimeout * 1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }, "Load data to CRM").start();
     }
 }

@@ -1,12 +1,12 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
 import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedLead;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMContact;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;

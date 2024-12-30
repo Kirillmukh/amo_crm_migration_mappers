@@ -1,18 +1,20 @@
 package com.example.dbeaver_migration_mappers.client;
 
 import com.example.dbeaver_migration_mappers.client.crm.EntityType;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMComplexLeadResponseWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMLeadResponse;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 
 import java.util.List;
 
 public interface AmoCRMRestClient {
-    CRMCompany getCompanies(int id);
+    CRMCompany getCompany(int id);
     ResponseTag createTags(List<Tag> tags, EntityType entityType);
     ResponseTag getTags(EntityType et, int page);
-    void createComplexLead(CRMComplexLead crmComplexLead);
-    void createLead(CRMLead crmLead);
+    CRMComplexLeadResponseWrapper createComplexLead(CRMLeadRequest crmLeadRequest);
+    CRMLeadResponse createLead(CRMLeadRequest crmLeadRequest);
+
 }

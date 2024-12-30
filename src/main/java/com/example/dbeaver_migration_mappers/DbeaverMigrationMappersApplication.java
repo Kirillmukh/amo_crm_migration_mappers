@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Slf4j
 public class DbeaverMigrationMappersApplication {
 
+    // TODO: 28.12.2024 save ids of saved elements
     public static void main(String[] args) {
         SpringApplication.run(DbeaverMigrationMappersApplication.class, args);
     }

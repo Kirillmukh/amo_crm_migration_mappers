@@ -1,9 +1,10 @@
 package com.example.dbeaver_migration_mappers.client.crm;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMComplexLead;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompany;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMComplexLeadResponseWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.response.CRMLeadResponse;
 import com.example.dbeaver_migration_mappers.crm_models.util.ResponseTag;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     private static final ParameterizedTypeReference<List<Tag>> TAGS_TYPE_REFERENCE = new ParameterizedTypeReference<List<Tag>>() {
     };
     @Override
-    public CRMCompany getCompanies(int id) {
+    public CRMCompany getCompany(int id) {
         return restClient.get()
                 .uri("companies/{id}", id)
                 .retrieve()
@@ -45,18 +46,20 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     }
 
     @Override
-    public void createComplexLead(CRMComplexLead crmComplexLead) {
-        restClient.post()
+    public CRMComplexLeadResponseWrapper createComplexLead(CRMLeadRequest crmLeadRequest) {
+        return restClient.post()
                 .uri("leads/complex")
-                .body(crmComplexLead.crmLead())
-                .retrieve();
+                .body(crmLeadRequest.crmLead())
+                .retrieve()
+                .body(CRMComplexLeadResponseWrapper.class);
     }
 
     @Override
-    public void createLead(CRMLead crmLead) {
-        restClient.post()
+    public CRMLeadResponse createLead(CRMLeadRequest crmLeadRequest) {
+        return restClient.post()
                 .uri("leads")
-                .body(crmLead)
-                .retrieve();
+                .body(crmLeadRequest)
+                .retrieve()
+                .body(CRMLeadResponse.class);
     }
 }
