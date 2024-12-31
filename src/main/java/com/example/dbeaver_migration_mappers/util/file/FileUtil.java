@@ -20,6 +20,7 @@ public class FileUtil {
     private final String path;
     @Getter
     private boolean isCreatedFile;
+    private final Object LOCK = new Object();
 
     public FileUtil(String path, String filename) {
         this.path = Path.of(path, filename).toString().replace("%20", " ");
@@ -43,7 +44,7 @@ public class FileUtil {
     }
 
     public void write(String data) throws FileWritingException {
-        synchronized (FileUtil.class) {
+        synchronized (LOCK) {
             Path file = Path.of(path);
             ByteBuffer byteBuffer = ByteBuffer.wrap(data.getBytes());
             try (FileChannel fileChannel = FileChannel.open(file, StandardOpenOption.WRITE)) {
@@ -55,7 +56,7 @@ public class FileUtil {
     }
 
     public String readFile() throws FileReadingException {
-        synchronized (FileUtil.class) {
+        synchronized (LOCK) {
             Path file = Path.of(path);
             ByteBuffer byteBuffer = ByteBuffer.allocate((int) file.toFile().length());
             try (FileChannel fileChannel = FileChannel.open(file, StandardOpenOption.READ)) {
