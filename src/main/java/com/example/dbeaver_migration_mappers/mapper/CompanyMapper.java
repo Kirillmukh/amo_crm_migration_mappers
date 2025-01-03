@@ -56,7 +56,7 @@ public abstract class CompanyMapper {
         CompanyIndustry industry = CompanyIndustry.of(input.getIndustry());
         list.add(new CustomFieldValue(INDUSTRY, singleValue(industry)));
 
-        list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM()))); // TODO CHECK THAT 'false' USE IN REQUEST OR NOT
+        list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM())));
 
         if (!input.getUsrOldEvents().isBlank()) {
             List<Value> events = new ArrayList<>();
