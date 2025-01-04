@@ -27,7 +27,7 @@ import static com.example.dbeaver_migration_mappers.crm_models.constants.Company
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class CompanyMapper {
     // TODO: 28.12.2024 check this pattern
-    private static final Pattern pattern = Pattern.compile("\\w{2,3}\\d{2}/\\d\\w?+");
+    private static final Pattern pattern = Pattern.compile("\\w{2,3}\\d{2}/\\d[а-яa-z]?+");
     @Autowired
     protected CompanyTagsCache tagsCache;
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")

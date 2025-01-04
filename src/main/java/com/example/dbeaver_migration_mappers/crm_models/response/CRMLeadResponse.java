@@ -9,8 +9,8 @@ public record CRMLeadResponse(
         Links links,
         @JsonProperty("_embedded")
         Embedded embedded) {
-    record Embedded(List<Lead> leads) {
-        record Lead(int id, @JsonProperty("_links") Links links) {
+    public record Embedded(List<Lead> leads) {
+        public record Lead(int id, @JsonProperty("_links") Links links) {
         }
     }
 }

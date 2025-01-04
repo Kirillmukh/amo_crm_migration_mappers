@@ -3,10 +3,7 @@ package com.example.dbeaver_migration_mappers.input_models.request;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -14,6 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class RequestLead {
     private InputLead lead;
     private InputCompany company;

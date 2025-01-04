@@ -1,7 +1,6 @@
 package com.example.dbeaver_migration_mappers.util.file;
 
 import com.example.dbeaver_migration_mappers.DbeaverMigrationMappersApplication;
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

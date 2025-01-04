@@ -11,9 +11,4 @@ public class CompaniesKeeper extends IdsKeeper {
     public CompaniesKeeper(@Qualifier("savedCompanies") FileUtil fileUtil) {
         super(fileUtil);
     }
-    @PostConstruct
-    @Override
-    public void init() throws FileReadingException {
-        super.init();
-    }
 }

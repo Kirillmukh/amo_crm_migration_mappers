@@ -10,8 +10,8 @@ public record CRMToEntityResponse(
         Links links,
         @JsonProperty("_embedded")
         Embedded embedded) {
-    record Embedded(List<EmbeddedLinks> links) {
-        record EmbeddedLinks(
+    public record Embedded(List<EmbeddedLinks> links) {
+        public record EmbeddedLinks(
                 @JsonProperty("to_entity_id")
                 int toEntityId,
                 @JsonProperty("to_entity_type")

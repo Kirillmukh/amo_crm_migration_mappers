@@ -4,12 +4,18 @@ import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.util.Tag;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-public record EmbeddedLead(
-        List<CRMContact> contacts,
-        List<CRMCompany> companies,
+@Getter
+@Setter
+@AllArgsConstructor
+public class EmbeddedLead {
+        private List<CRMContact> contacts;
+        private List<CRMCompany> companies;
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        List<Tag> tags) {
+        private List<Tag> tags;
 }

@@ -67,4 +67,15 @@ public class FileUtil {
             return new String(byteBuffer.array());
         }
     }
+    public void append(String data) throws FileWritingException {
+        synchronized (LOCK) {
+            Path file = Path.of(path);
+            ByteBuffer byteBuffer = ByteBuffer.wrap(data.getBytes());
+            try (FileChannel fileChannel = FileChannel.open(file, StandardOpenOption.APPEND)) {
+                fileChannel.write(byteBuffer);
+            } catch (IOException e) {
+                throw new FileWritingException(e);
+            }
+        }
+    }
 }

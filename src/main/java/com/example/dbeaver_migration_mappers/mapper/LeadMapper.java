@@ -54,9 +54,15 @@ public abstract class LeadMapper {
 
         CRMCompany crmCompany = companyMapper.mapToOutput(company);
         List<CRMContact> crmContacts = contactMapper.mapToOutput(contacts);
+        List<CRMCompany> crmCompanyList = new ArrayList<>();
+        if (crmCompany == null) {
+            log.error("LeadMapper.setEmbeddedLead() crmCompany is null -> List.of(null) threw exception");  // TODO: 28.12.2024 delete this row
+            log.error("lead: {}", requestLead);
+        } else {
+            crmCompanyList.add(crmCompany);
+        }
 
-        if (crmCompany == null) log.error("LeadMapper.setEmbeddedLead() crmCompany is null -> List.of(null) threw exception");  // TODO: 28.12.2024 delete this row
-
-        return new EmbeddedLead(crmContacts, List.of(crmCompany), new ArrayList<>());
+//        return new EmbeddedLead(crmContacts, List.of(crmCompany), new ArrayList<>()); // TODO: 04.01.2025 было раньше
+        return new EmbeddedLead(crmContacts, crmCompanyList, new ArrayList<>()); // TODO: 04.01.2025 если сделка существует без компании, то оставить так
     }
 }

@@ -11,9 +11,4 @@ public class ContactsKeeper extends IdsKeeper {
     public ContactsKeeper(@Qualifier("savedContacts") FileUtil fileUtil) {
         super(fileUtil);
     }
-    @PostConstruct
-    @Override
-    public void init() throws FileReadingException {
-        super.init();
-    }
 }

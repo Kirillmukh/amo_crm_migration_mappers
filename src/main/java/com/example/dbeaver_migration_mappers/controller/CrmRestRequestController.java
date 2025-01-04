@@ -1,6 +1,5 @@
 package com.example.dbeaver_migration_mappers.controller;
 
-import com.example.dbeaver_migration_mappers.controller.payload.GUIDListWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
 import com.example.dbeaver_migration_mappers.facade.ApplicationFacade;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,8 +37,8 @@ public class CrmRestRequestController {
         applicationFacade.loadComplexLead();
     }
     @PostMapping
-    public Object loadByUUID(@RequestBody GUIDListWrapper wrapper) {
-        applicationFacade.loadLeadsByGUID(wrapper.guids());
+    public Object loadByUUID(@RequestBody List<String> guids) {
+        applicationFacade.loadLeadsByGUID(guids);
         // TODO: 01.12.2024
         return "error";
     }

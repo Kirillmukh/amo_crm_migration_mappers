@@ -12,28 +12,50 @@ import java.util.stream.Collectors;
 
 public abstract class IdsKeeper {
     private final FileUtil fileUtil;
+    private int loadFactor = 100;
+
     public IdsKeeper(FileUtil fileUtil) {
         this.fileUtil = fileUtil;
     }
+
+    public IdsKeeper(FileUtil fileUtil, int loadFactor) {
+        this(fileUtil);
+        this.loadFactor = loadFactor;
+    }
     @Getter
     private List<String> ids = new ArrayList<>();
-    public void write() throws FileWritingException {
-        fileUtil.write(String.join("\n", ids));
+
+    public void append() throws FileWritingException {
+        String reduce = ids.stream()
+                .map(ids -> ids.concat("\n"))
+                .reduce("", String::concat);
+        fileUtil.append(reduce);
+        this.ids.clear();
     }
-    public void init() throws FileReadingException {
-        if (!fileUtil.isCreatedFile()) {
-            read();
-        }
+
+    public void clear() {
+        this.ids.clear();
     }
+
     public void read() throws FileReadingException {
         this.ids.clear();
         this.ids = Arrays.stream(fileUtil.readFile().split("\n"))
                 .collect(Collectors.toList());
     }
-    public void offer(String id) {
+
+    public void offer(String id) throws FileWritingException {
         this.ids.add(id);
+        if (this.ids.size() >= loadFactor) {
+            append();
+        }
     }
-    public void delete(String id) {
-        this.ids.remove(id);
+    public void delete(List<String> ids) throws FileReadingException, FileWritingException {
+        if (!this.ids.isEmpty()) append();
+        read();
+        this.ids.removeAll(ids);
+        String reduce = this.ids.stream()
+                .map(id -> id.concat("\n"))
+                .reduce("", String::concat);
+        fileUtil.write(reduce);
     }
 }

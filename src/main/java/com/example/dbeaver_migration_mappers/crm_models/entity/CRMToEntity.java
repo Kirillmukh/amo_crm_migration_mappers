@@ -1,11 +1,18 @@
 package com.example.dbeaver_migration_mappers.crm_models.entity;
 
-import com.example.dbeaver_migration_mappers.client.crm.EntityType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CRMToEntity {
     @JsonProperty("to_entity_id")
-    private int toEntityId;
+    private Integer toEntityId;
     @JsonProperty("to_entity_type")
-    private EntityType toEntityType;
+    private String toEntityType;
 }

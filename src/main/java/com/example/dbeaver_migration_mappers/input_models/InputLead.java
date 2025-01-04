@@ -3,12 +3,14 @@ package com.example.dbeaver_migration_mappers.input_models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class InputLead {
     private String id;
     private String type; // leadTypeId (LeadType.java) -> name

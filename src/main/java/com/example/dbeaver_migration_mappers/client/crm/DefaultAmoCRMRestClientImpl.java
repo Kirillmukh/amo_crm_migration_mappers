@@ -20,6 +20,8 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     private final RestClient restClient;
     private static final ParameterizedTypeReference<List<Tag>> TAGS_TYPE_REFERENCE = new ParameterizedTypeReference<List<Tag>>() {
     };
+    private static final ParameterizedTypeReference<List<CRMComplexLeadResponse>> LEAD_TYPE_REFERENCE = new ParameterizedTypeReference<List<CRMComplexLeadResponse>>() {
+    };
 
     @Override
     public CRMCompany getCompany(int id) {
@@ -49,12 +51,12 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     }
 
     @Override
-    public CRMComplexLeadResponseWrapper createComplexLead(CRMLeadRequest crmLeadRequest) {
+    public List<CRMComplexLeadResponse> createComplexLead(CRMLeadRequest crmLeadRequest) {
         return restClient.post()
                 .uri("leads/complex")
                 .body(crmLeadRequest.crmLead())
                 .retrieve()
-                .body(CRMComplexLeadResponseWrapper.class);
+                .body(LEAD_TYPE_REFERENCE);
     }
 
     @Override

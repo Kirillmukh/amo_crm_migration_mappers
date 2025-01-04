@@ -11,9 +11,4 @@ public class LeadsKeeper extends IdsKeeper {
     public LeadsKeeper(@Qualifier("savedLeads") FileUtil fileUtil) {
         super(fileUtil);
     }
-    @PostConstruct
-    @Override
-    public void init() throws FileReadingException {
-        super.init();
-    }
 }

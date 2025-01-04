@@ -3,10 +3,12 @@ package com.example.dbeaver_migration_mappers.input_models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class InputContact {
     private String id;
     private String name; // contact -> name

@@ -2,8 +2,11 @@ package com.example.dbeaver_migration_mappers.input_models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
 @Getter
 @Setter
+@ToString
 public class InputCompany {
     private String id;
     private String name;
