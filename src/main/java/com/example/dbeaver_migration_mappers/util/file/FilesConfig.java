@@ -21,10 +21,6 @@ public class FilesConfig {
         return file.getPath();
     }
     @Bean
-    public FileUtil companyFile() {
-        return new FileUtil(targetDirectoryPath, "company_tags.json");
-    }
-    @Bean
     public FileUtil savedCompanies() {
         return new FileUtil(targetDirectoryPath, "company_ids.txt");
     }

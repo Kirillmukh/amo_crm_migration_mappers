@@ -34,8 +34,6 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         // маппинг под CRM
         CRMLeadRequest crmLeadRequest = new CRMLeadRequest(leadMapper.mapRequestLead(requestDatabaseLeads));
 
-        log.info("data: {}", crmLeadRequest); // TODO: 04.01.2025 delete this row
-
         requestService.saveComplexLead(crmLeadRequest);
 
         // группировка по 50 элементов
@@ -101,7 +99,6 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         return result;
     }
 
-    // TODO: 04.01.2025 Дописать
     @Override
     public void loadLeadsByGUID(List<String> guids) {
         List<CRMLead> collect = guids.stream()
@@ -114,10 +111,10 @@ public class DefaultApplicationFacade implements ApplicationFacade {
                     return optional.get();
                 })
                 .map(leadMapper::mapRequestLead)
-                .collect(Collectors.toList());
+                .toList();
 
-//        List<CRMLeadRequest> crmLeadRequests = groupCRMLeadRequest(new CRMLeadRequest(collect));
+        CRMLeadRequest crmLeadRequest = new CRMLeadRequest(collect);
 
-//        sendLead(crmLeadRequests);
+        requestService.saveComplexLead(crmLeadRequest);
     }
 }

@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 // TODO: 04.01.2025 Сделать паузу между запросами
-// TODO: 04.01.2025 Переделать сохранение контактов
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +42,7 @@ public class AmoRequestService implements RequestService {
     @Value("${config.crm.request.timeout_seconds}")
     private int requestTimeout;
 
+    @Override
     public void saveComplexLead(CRMLeadRequest crmLeadRequest) {
         int requestLength = crmLeadRequest.crmLead().size();
         List<List<CRMContact>> contactsQueue = new ArrayList<>(requestLength);
@@ -75,11 +75,23 @@ public class AmoRequestService implements RequestService {
         log.info("groupedContacts default size = {}", groupedContacts.size());
 
         // lead request
-        List<CRMComplexLeadResponse> complexLeadResponses = groupedComplexLead.stream()
-                .map(amoCRMRestClient::createComplexLead)
-                .flatMap(Collection::stream)
-                .map(this::keep)
-                .toList();
+        List<CRMComplexLeadResponse> complexLeadResponses = new ArrayList<>();
+        for (CRMLeadRequest leadRequest : groupedComplexLead) {
+            List<CRMComplexLeadResponse> complexLead = amoCRMRestClient.createComplexLead(leadRequest);
+            try {
+                Thread.sleep(requestTimeout * 1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            complexLead.stream()
+                    .peek(this::keep)
+                    .forEach(complexLeadResponses::add);
+        }
+//        List<CRMComplexLeadResponse> complexLeadResponses = groupedComplexLead.stream()
+//                .map(amoCRMRestClient::createComplexLead)
+//                .flatMap(Collection::stream)
+//                .peek(this::keep)
+//                .toList();
         log.info("complexLeadResponses size = {}", complexLeadResponses.size());
 
         if (complexLeadResponses.size() != groupedContacts.size()) {
@@ -89,19 +101,37 @@ public class AmoRequestService implements RequestService {
         }
 
         // contact request and link it with lead
+        List<CRMToEntityResponse> crmToEntityResponses = new ArrayList<>();
         for (int i = 0; i < groupedContacts.size(); i++) {
             if (groupedContacts.get(i) == null) {
                 continue;
             }
             CRMComplexLeadResponse crmComplexLeadResponse = complexLeadResponses.get(i);
-            List<CRMToEntityResponse> crmToEntityResponses = groupedContacts.get(i).stream()
-                    .map(amoCRMRestClient::createContact)
-                    .map(contacts -> contacts.embedded().contacts())
-                    .map(this::keep)
-                    .map(toEntityRequestMapper::mapContactsToLeadLinks)
-                    .map(CRMToEntityRequest::new)
-                    .map(toEntity -> amoCRMRestClient.linkLead(crmComplexLeadResponse.id(), toEntity))
-                    .toList();
+            for (CRMContactRequest contactRequest : groupedContacts.get(i)) {
+                List<CRMContactResponse.Embedded.Contact> contacts = amoCRMRestClient.createContact(contactRequest).embedded().contacts();
+                try {
+                    Thread.sleep(requestTimeout * 1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                this.keep(contacts);
+                CRMToEntityRequest crmToEntityRequest = new CRMToEntityRequest(toEntityRequestMapper.mapContactsToLeadLinks(contacts));
+                CRMToEntityResponse crmToEntityResponse = amoCRMRestClient.linkLead(crmComplexLeadResponse.id(), crmToEntityRequest);
+                try {
+                    Thread.sleep(requestTimeout * 1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                crmToEntityResponses.add(crmToEntityResponse);
+            }
+//            List<CRMToEntityResponse> crmToEntityResponses = groupedContacts.get(i).stream()
+//                    .map(amoCRMRestClient::createContact)
+//                    .map(contacts -> contacts.embedded().contacts())
+//                    .peek(this::keep)
+//                    .map(toEntityRequestMapper::mapContactsToLeadLinks)
+//                    .map(CRMToEntityRequest::new)
+//                    .map(toEntity -> amoCRMRestClient.linkLead(crmComplexLeadResponse.id(), toEntity))
+//                    .toList();
             log.info("crmToEntityResponses: {}", crmToEntityResponses.stream().map(response -> response.embedded().links()).toList());
         }
         try {
@@ -128,7 +158,7 @@ public class AmoRequestService implements RequestService {
         // link contacts    -> /leads/link
     }
 
-    private List<CRMContactResponse.Embedded.Contact> keep(List<CRMContactResponse.Embedded.Contact> contacts) {
+    private void keep(List<CRMContactResponse.Embedded.Contact> contacts) {
         contacts.stream()
                 .filter(Objects::nonNull)
                 .forEach(contact -> {
@@ -138,10 +168,9 @@ public class AmoRequestService implements RequestService {
                         log.error("error while writing contacts info");
                     }
                 });
-        return contacts;
     }
 
-    private CRMComplexLeadResponse keep(CRMComplexLeadResponse crmComplexLeadResponse) {
+    private void keep(CRMComplexLeadResponse crmComplexLeadResponse) {
         if (crmComplexLeadResponse.id() != null) {
             try {
                 this.leadsKeeper.offer(String.valueOf(crmComplexLeadResponse.id()));
@@ -163,7 +192,6 @@ public class AmoRequestService implements RequestService {
                 log.error("error while writing contacts info");
             }
         }
-        return crmComplexLeadResponse;
     }
 
     private <T> List<List<T>> group(List<T> elements) {

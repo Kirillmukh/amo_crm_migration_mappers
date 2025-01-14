@@ -67,7 +67,7 @@ public enum ContactDepartment implements ValueEnum {
                 return cd;
             }
         }
-        if (value.equals("Бренд и категорийные менеджеры")) return BRAND_PRODUCT_MANAGERS; // TODO: 04.01.2025 template! delete this row
+        if (value.equals("Бренд и категорийные менеджеры")) return BRAND_PRODUCT_MANAGERS;
         throw new IllegalArgumentException("Wrong value for ContactDepartment: " + value);
     }
 }

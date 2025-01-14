@@ -8,16 +8,15 @@ import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
-import com.example.dbeaver_migration_mappers.util.CompanyTagsCache;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,16 +24,19 @@ import java.util.stream.Collectors;
 import static com.example.dbeaver_migration_mappers.crm_models.constants.CompanyFieldsID.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Slf4j
 public abstract class CompanyMapper {
-    // TODO: 28.12.2024 check this pattern
-    private static final Pattern pattern = Pattern.compile("\\w{2,3}\\d{2}/\\d[а-яa-z]?+");
-    @Autowired
-    protected CompanyTagsCache tagsCache;
+    // DEBUG
+    private final Set<String> set = new HashSet<>();
+    // DEBUG
+    private static final Pattern pattern = Pattern.compile("([a-zA-Zа-яА-я]{2,4}|\\w{2,3})\\d{2}/\\d([а-яa-z]+)?");
     @Mapping(target = "customFieldValues", expression = "java(setCustomFields(inputCompany))")
     @Mapping(target = "_embedded", expression = "java(setEmbeddedCompany(inputCompany.getUsrOldEvents()))")
     public abstract CRMCompany mapToOutput(InputCompany inputCompany);
+
     public abstract List<CRMCompany> mapToOutput(List<InputCompany> inputCompanies);
-    public List<CustomFieldValue> setCustomFields(InputCompany input) {
+
+    protected List<CustomFieldValue> setCustomFields(InputCompany input) {
         List<CustomFieldValue> list = new ArrayList<>();
         list.add(new CustomFieldValue(ALTERNATIVE_NAME, singleValue(input.getAlternativeName())));
 
@@ -58,15 +60,15 @@ public abstract class CompanyMapper {
 
         list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM())));
 
-        if (!input.getUsrOldEvents().isBlank()) {
-            List<Value> events = new ArrayList<>();
-            for (String event : input.getUsrOldEvents().split(" ")) {
-                if (CompanyEvent.contains(event)) {
-                    events.add(new Value(CompanyEvent.of(event)));
-                }
-            }
-            list.add(new CustomFieldValue(EVENTS, events));
-        }
+//        if (!input.getUsrOldEvents().isBlank()) {
+//            List<Value> events = new ArrayList<>();
+//            for (String event : input.getUsrOldEvents().split(" ")) {
+//                if (CompanyEvent.contains(event)) {
+//                    events.add(new Value(CompanyEvent.of(event)));
+//                }
+//            }
+//            list.add(new CustomFieldValue(EVENTS, events));
+//        }
 
         if (!input.getUsrPrimKontr().isBlank()) {
             list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontr())));
@@ -85,25 +87,43 @@ public abstract class CompanyMapper {
 
         return list;
     }
+
     private List<Value> singleValue(Object value) {
         return List.of(new Value(value));
     }
+
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
     }
-    public EmbeddedCompany setEmbeddedCompany(String events) {
+
+    protected EmbeddedCompany setEmbeddedCompany(String events) {
+
         if (events.isBlank()) return null;
         List<Tag> tags = Arrays.stream(events.split(" "))
                 .filter(this::correctEvent)
+                .map(this::parseEvent)
+                .peek(set::add)
                 .map(event -> new Tag(event, null))
                 .collect(Collectors.toList());
-
-        tags = tagsCache.getTags(tags);
-
         return new EmbeddedCompany(tags);
     }
-    public boolean correctEvent(String event) {
+
+    private boolean correctEvent(String event) {
         Matcher matcher = pattern.matcher(event);
-        return matcher.matches();
+        return matcher.find();
+    }
+
+    private String parseEvent(String event) {
+        Matcher matcher = pattern.matcher(event);
+        if (!matcher.find()) {
+            log.error("CompanyMapper.parseEvent(event): wrong match : {}", event);
+            throw new RuntimeException("CompanyMapper.parseEvent(event): wrong match : %s".formatted(event));
+        }
+        ;
+        return matcher.group();
+    }
+
+    public Set<String> getSet() {
+        return this.set;
     }
 }

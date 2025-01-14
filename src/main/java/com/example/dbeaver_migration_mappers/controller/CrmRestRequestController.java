@@ -37,9 +37,7 @@ public class CrmRestRequestController {
         applicationFacade.loadComplexLead();
     }
     @PostMapping
-    public Object loadByUUID(@RequestBody List<String> guids) {
+    public void loadByUUID(@RequestBody List<String> guids) {
         applicationFacade.loadLeadsByGUID(guids);
-        // TODO: 01.12.2024
-        return "error";
     }
 }

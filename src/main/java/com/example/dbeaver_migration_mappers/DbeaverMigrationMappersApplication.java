@@ -8,8 +8,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 @Slf4j
 public class DbeaverMigrationMappersApplication {
-
-    // TODO: 28.12.2024 save ids of saved elements
+    // TODO: 13.01.2025 rewrite database contact and company models
     public static void main(String[] args) {
         SpringApplication.run(DbeaverMigrationMappersApplication.class, args);
     }
