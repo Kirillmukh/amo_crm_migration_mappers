@@ -6,6 +6,7 @@ import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -108,4 +109,6 @@ public interface ContactMapper {
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
     }
+    CRMContact mapToOutputRequestContactWithoutCompany(RequestContactWithoutCompanyDTO request);
+    List<CRMContact> mapToOutputRequestContactWithoutCompany(List<RequestContactWithoutCompanyDTO> request);
 }

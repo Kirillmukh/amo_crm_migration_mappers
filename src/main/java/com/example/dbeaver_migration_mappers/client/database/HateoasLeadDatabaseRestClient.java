@@ -28,9 +28,9 @@ public class HateoasLeadDatabaseRestClient implements DatabaseRestClient<Request
     }
 
     @Override
-    public Optional<ListHateoasEntity<RequestLead>> request(int limit, int offset) {
+    public Optional<ListHateoasEntity<RequestLead>> request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date) {
         ListResponseLeadDTO response = restClient.get()
-                .uri("lead?limit={limit}&offset={offset}", limit, offset)
+                .uri("lead?date={date}", date)
                 .retrieve()
                 .body(ListResponseLeadDTO.class);
         return Optional.ofNullable(response.getEntity());

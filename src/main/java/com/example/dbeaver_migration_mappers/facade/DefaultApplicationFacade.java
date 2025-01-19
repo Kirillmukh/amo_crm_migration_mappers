@@ -1,22 +1,25 @@
 package com.example.dbeaver_migration_mappers.facade;
 
 import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
-import com.example.dbeaver_migration_mappers.client.HateoasLinkRestClient;
+import com.example.dbeaver_migration_mappers.client.collector.RequestCollector;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsListWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
-import com.example.dbeaver_migration_mappers.input_models.hateoas.Link;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestCompanyWithContactsDTO;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
+import com.example.dbeaver_migration_mappers.mapper.CompanyMapper;
+import com.example.dbeaver_migration_mappers.mapper.ContactMapper;
 import com.example.dbeaver_migration_mappers.mapper.LeadMapper;
 import com.example.dbeaver_migration_mappers.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,11 +28,15 @@ public class DefaultApplicationFacade implements ApplicationFacade {
     private final DatabaseRestClient<RequestLead, ListHateoasEntity<RequestLead>> leadDatabaseRestClient;
     private final RequestService requestService;
     private final LeadMapper leadMapper;
-    private final HateoasLinkRestClient<ListHateoasEntity<RequestLead>> hateoasLinkRestClient;
+    private final ContactMapper contactMapper;
+    private final CompanyMapper companyMapper;
+    private final RequestCollector<RequestLead> requestLeadCollector;
+    private final RequestCollector<RequestCompanyWithContactsDTO> requestCompanyWithContactsCollector;
+    private final RequestCollector<RequestContactWithoutCompanyDTO> requestContactWithoutCompanyCollector;
     @Override
     public void loadComplexLead() {
         // запрос на сервер бд
-        List<RequestLead> requestDatabaseLeads = requestContent();
+        List<RequestLead> requestDatabaseLeads = requestLeadCollector.requestContent();
 
         // маппинг под CRM
         CRMLeadRequest crmLeadRequest = new CRMLeadRequest(leadMapper.mapRequestLead(requestDatabaseLeads));
@@ -42,61 +49,6 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         // запрос в срм в отдельном потоке
 //        sendComplexLeads(crmLeadRequestRequests);
 
-    }
-
-    private List<RequestLead> requestContent() {
-        Optional<ListHateoasEntity<RequestLead>> request = leadDatabaseRestClient.request();
-        if (request.isEmpty()) {
-            log.error("empty result from leadDatabaseRestClient.request() in DefaultApplicationFacade.java");
-            throw new RuntimeException("empty result from leadDatabaseRestClient.request() in DefaultApplicationFacade.java");
-        }
-
-        ListHateoasEntity<RequestLead> databaseRequest = request.get();
-        List<RequestLead> content = databaseRequest.content();
-        Link linkToNext = null;
-
-        for (var link : databaseRequest.links()) {
-            if (link.rel().equals("next")) {
-                linkToNext = link;
-                break;
-            }
-        }
-
-        if (linkToNext == null) {
-            log.error("linkToNext is null in DefaultApplicationFacade.java" +
-                    "may be request is not contains next rel");
-            throw new RuntimeException("linkToNext is null in DefaultApplicationFacade.java" +
-                    "may be request is not contains next rel");
-        }
-        content.addAll(requestContentHelper(linkToNext));
-        return content;
-    }
-
-    private List<RequestLead> requestContentHelper(Link linkToNext) {
-        Optional<ListHateoasEntity<RequestLead>> optionalRequest = hateoasLinkRestClient.request(linkToNext);
-        log.info("requestContentHelper: {}", optionalRequest);
-        if (optionalRequest.isEmpty()) {
-            log.error("empty result from leadDatabaseRestClient.request() in DefaultApplicationFacade.java");
-            throw new RuntimeException("empty result from leadDatabaseRestClient.request() in DefaultApplicationFacade.java");
-        }
-
-        ListHateoasEntity<RequestLead> request = optionalRequest.get();
-
-        List<RequestLead> result = request.content();
-        linkToNext = null;
-
-        for (var link : request.links()) {
-            if (link.rel().equals("next")) {
-                linkToNext = link;
-                break;
-            }
-        }
-
-        if (linkToNext == null) {
-            return result;
-        }
-        result.addAll(requestContentHelper(linkToNext));
-        return result;
     }
 
     @Override
@@ -116,5 +68,27 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         CRMLeadRequest crmLeadRequest = new CRMLeadRequest(collect);
 
         requestService.saveComplexLead(crmLeadRequest);
+    }
+    @Override
+    public void loadCompaniesAndContacts() {
+        List<RequestCompanyWithContactsDTO> requestDatabaseCompaniesWithContacts = requestCompanyWithContactsCollector.requestContent();
+
+        List<CRMCompanyCRMContactsWrapper> crmCompanyCRMContactsWrappers = requestDatabaseCompaniesWithContacts.stream()
+                .map(request -> new CRMCompanyCRMContactsWrapper(
+                        companyMapper.mapToOutput(request.getCompany()),
+                        contactMapper.mapToOutput(request.getContacts())))
+                .toList();
+
+        CRMCompanyCRMContactsListWrapper crmCompanyRequest = new CRMCompanyCRMContactsListWrapper(crmCompanyCRMContactsWrappers);
+
+        requestService.saveCompanyAndContacts(crmCompanyRequest);
+    }
+    @Override
+    public void loadContactsWithoutCompany() {
+        List<RequestContactWithoutCompanyDTO> requestDatabaseContactsWithoutCompanies = requestContactWithoutCompanyCollector.requestContent();
+
+        CRMContactRequest crmContactRequest = new CRMContactRequest(contactMapper.mapToOutputRequestContactWithoutCompany(requestDatabaseContactsWithoutCompanies));
+
+        requestService.saveContact(crmContactRequest);
     }
 }

@@ -18,7 +18,6 @@ public class InputCompany {
     private String industry; // industryId (AccountIndustry.java) -> name
     private boolean usrCompanyUseEDM;
     private String usrOldEvents;
-    private String usrEventsOfRival;
     private String usrPrimKontr;
     private String segment;
     private String moderation;

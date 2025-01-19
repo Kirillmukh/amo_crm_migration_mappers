@@ -1,10 +1,7 @@
 package com.example.dbeaver_migration_mappers.client.crm;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMToEntityLinksRequest;
-import com.example.dbeaver_migration_mappers.crm_models.request.CRMToEntityRequest;
+import com.example.dbeaver_migration_mappers.crm_models.request.*;
 import com.example.dbeaver_migration_mappers.crm_models.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -38,7 +35,7 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     @Override
     public CRMContactResponse createContact(CRMContactRequest crmContactRequest) {
         return restClient.post()
-                .uri("contacts")
+                .uri("companies")
                 .body(crmContactRequest.crmContactList())
                 .retrieve()
                 .body(CRMContactResponse.class);
@@ -60,5 +57,23 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
                 .body(crmToEntityLinksRequest.linksRequestList())
                 .retrieve()
                 .body(CRMToEntityLinksResponse.class);
+    }
+
+    @Override
+    public CRMCompanyResponse createCompany(CRMCompanyRequest companyRequest) {
+        return restClient.post()
+                .uri("companies")
+                .body(companyRequest.crmCompanyList())
+                .retrieve()
+                .body(CRMCompanyResponse.class);
+    }
+
+    @Override
+    public CRMToEntityResponse linkCompany(int companyId, CRMToEntityRequest crmToEntityRequest) {
+        return restClient.post()
+                .uri("companies/{companyId}/link", companyId)
+                .body(crmToEntityRequest.crmToEntityList())
+                .retrieve()
+                .body(CRMToEntityResponse.class);
     }
 }

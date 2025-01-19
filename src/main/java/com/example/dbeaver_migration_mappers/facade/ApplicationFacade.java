@@ -5,4 +5,7 @@ import java.util.List;
 public interface ApplicationFacade {
     void loadLeadsByGUID(List<String> guids);
     void loadComplexLead();
+    void loadCompaniesAndContacts();
+
+    void loadContactsWithoutCompany();
 }

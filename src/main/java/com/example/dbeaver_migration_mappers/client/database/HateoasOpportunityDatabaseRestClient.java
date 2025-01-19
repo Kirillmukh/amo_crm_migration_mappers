@@ -29,10 +29,10 @@ public class HateoasOpportunityDatabaseRestClient implements DatabaseRestClient<
     }
 
     @Override
-    public Optional<ListHateoasEntity<RequestOpportunity>> request(int limit, int offset) {
+    public Optional<ListHateoasEntity<RequestOpportunity>> request(@DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date) {
         ListHateoasEntity<RequestOpportunity> result = null;
         try (Response response = restClient.get()
-                .uri("opportunity?limit={limit}&offset={offset}", limit, offset)
+                .uri("opportunity?date={date}", date)
                 .retrieve()
                 .body(Response.class)) {
             if (response.hasEntity()) {

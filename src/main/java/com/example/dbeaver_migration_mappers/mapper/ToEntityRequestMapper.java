@@ -12,7 +12,7 @@ public interface ToEntityRequestMapper {
 
     @Mapping(target = "toEntityId", source = "contact.id")
     @Mapping(target = "toEntityType", constant = "contacts")
-    CRMToEntity mapContactToLeadLinks(CRMContactResponse.Embedded.Contact contact);
+    CRMToEntity mapContactLinks(CRMContactResponse.Embedded.Contact contact);
 
-    List<CRMToEntity> mapContactsToLeadLinks(List<CRMContactResponse.Embedded.Contact> crmContactResponse);
+    List<CRMToEntity> mapContactsToLinks(List<CRMContactResponse.Embedded.Contact> crmContactResponse);
 }

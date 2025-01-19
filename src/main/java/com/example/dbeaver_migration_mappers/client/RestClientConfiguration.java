@@ -5,6 +5,8 @@ import com.example.dbeaver_migration_mappers.client.database.HateoasCompanyDatab
 import com.example.dbeaver_migration_mappers.client.database.HateoasContactDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasLeadDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasOpportunityDatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.hateoas_link.CompanyWithContactsHateoasRestClient;
+import com.example.dbeaver_migration_mappers.client.hateoas_link.ContactWithoutCompanyHateoasRestClient;
 import com.example.dbeaver_migration_mappers.client.hateoas_link.LeadHateoasRestClient;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompany;
@@ -32,30 +34,22 @@ public class RestClientConfiguration {
     }
     @Bean
     public DatabaseRestClient<RequestCompany, ListHateoasEntity<RequestCompany>> companyDatabaseRestClient() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl(databaseUrl)
-                .build();
+        RestClient restClient = databaseRestClient();
         return new HateoasCompanyDatabaseRestClient(restClient);
     }
     @Bean
     public DatabaseRestClient<RequestContact, ListHateoasEntity<RequestContact>> contactDatabaseRestClient() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl(databaseUrl)
-                .build();
+        RestClient restClient = databaseRestClient();
         return new HateoasContactDatabaseRestClient(restClient);
     }
     @Bean
     public DatabaseRestClient<RequestLead, ListHateoasEntity<RequestLead>> leadDatabaseRestClient() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl(databaseUrl)
-                .build();
+        RestClient restClient = databaseRestClient();
         return new HateoasLeadDatabaseRestClient(restClient);
     }
     @Bean
     public DatabaseRestClient<RequestOpportunity, ListHateoasEntity<RequestOpportunity>> opportunityDatabaseRestClient() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl(databaseUrl)
-                .build();
+        RestClient restClient = databaseRestClient();
         return new HateoasOpportunityDatabaseRestClient(restClient);
     }
 
@@ -64,5 +58,29 @@ public class RestClientConfiguration {
         RestClient restClient = RestClient.builder()
                 .build();
         return new LeadHateoasRestClient(restClient);
+    }
+    @Bean
+    public CompanyWithContactsHateoasRestClient companyWithContactsHateoasRestClient() {
+        RestClient restClient = RestClient.builder().build();
+        return new CompanyWithContactsHateoasRestClient(restClient);
+    }
+    @Bean
+    public ContactWithoutCompanyHateoasRestClient contactWithoutCompanyHateoasRestClient() {
+        RestClient restClient = RestClient.builder().build();
+        return new ContactWithoutCompanyHateoasRestClient(restClient);
+    }
+
+    @Bean
+    public HateoasCompanyDatabaseRestClient hateoasCompanyDatabaseRestClient() {
+        RestClient restClient = databaseRestClient();
+        return new HateoasCompanyDatabaseRestClient(restClient);
+    }
+    @Bean
+    public HateoasContactDatabaseRestClient hateoasContactDatabaseRestClient() {
+        RestClient restClient = databaseRestClient();
+        return new HateoasContactDatabaseRestClient(restClient);
+    }
+    private RestClient databaseRestClient() {
+        return RestClient.builder().baseUrl(databaseUrl).build();
     }
 }

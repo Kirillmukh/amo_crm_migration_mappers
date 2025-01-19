@@ -24,7 +24,6 @@ public class InputContact {
     private String role; // usrDecisionRoleId -> name
     private String department; // departmentId (Department.java) -> name
     private String usrOldEvents; // contact -> usrOldEvents
-    private String usrOldEventsOfRivals; // contact -> usrOldEvents
     private String usrDiscCard; // contact -> UsrDiscCard
     private String moderation; // usrModerationId (UsrModeration.java) -> name
     private byte doNotUseEmail;
