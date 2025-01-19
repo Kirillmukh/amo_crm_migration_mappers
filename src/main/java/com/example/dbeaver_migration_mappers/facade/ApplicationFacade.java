@@ -8,4 +8,6 @@ public interface ApplicationFacade {
     void loadCompaniesAndContacts();
 
     void loadContactsWithoutCompany();
+
+    void rollback();
 }

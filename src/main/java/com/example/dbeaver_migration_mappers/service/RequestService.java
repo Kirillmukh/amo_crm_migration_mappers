@@ -10,4 +10,6 @@ public interface RequestService {
     void saveContact(CRMContactRequest crmContactRequest);
 
     void saveCompanyAndContacts(CRMCompanyCRMContactsListWrapper crmCompanyRequest);
+
+    void deleteEntities();
 }

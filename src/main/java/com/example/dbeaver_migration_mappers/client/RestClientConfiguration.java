@@ -1,6 +1,7 @@
 package com.example.dbeaver_migration_mappers.client;
 
 import com.example.dbeaver_migration_mappers.client.crm.DefaultAmoCRMRestClientImpl;
+import com.example.dbeaver_migration_mappers.client.crm.DeleteAmoCRMSourceRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasCompanyDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasContactDatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.database.HateoasLeadDatabaseRestClient;
@@ -79,6 +80,14 @@ public class RestClientConfiguration {
     public HateoasContactDatabaseRestClient hateoasContactDatabaseRestClient() {
         RestClient restClient = databaseRestClient();
         return new HateoasContactDatabaseRestClient(restClient);
+    }
+    @Bean
+    public AmoCRMSourceRestClient amoCRMSourceRestClient(@Value("${config.crm.sourceUrl}") String baseUrl, @Value("${config.crm.token}") String token) {
+        RestClient restClient = RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader("authorization", "Bearer " + token)
+                .build();
+        return new DeleteAmoCRMSourceRestClient(restClient);
     }
     private RestClient databaseRestClient() {
         return RestClient.builder().baseUrl(databaseUrl).build();

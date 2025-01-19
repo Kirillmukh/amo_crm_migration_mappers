@@ -1,6 +1,7 @@
 package com.example.dbeaver_migration_mappers.service;
 
 import com.example.dbeaver_migration_mappers.client.AmoCRMRestClient;
+import com.example.dbeaver_migration_mappers.client.AmoCRMSourceRestClient;
 import com.example.dbeaver_migration_mappers.crm_models.embedded.EmbeddedLead;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
@@ -16,9 +17,11 @@ import com.example.dbeaver_migration_mappers.crm_models.response.CRMComplexLeadR
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMContactResponse;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMToEntityResponse;
 import com.example.dbeaver_migration_mappers.mapper.ToEntityRequestMapper;
+import com.example.dbeaver_migration_mappers.util.file.exception.FileReadingException;
 import com.example.dbeaver_migration_mappers.util.file.exception.FileWritingException;
 import com.example.dbeaver_migration_mappers.util.keeper.CompaniesKeeper;
 import com.example.dbeaver_migration_mappers.util.keeper.ContactsKeeper;
+import com.example.dbeaver_migration_mappers.util.keeper.IdsKeeper;
 import com.example.dbeaver_migration_mappers.util.keeper.LeadsKeeper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // TODO: 04.01.2025 Сделать паузу между запросами
@@ -41,6 +45,7 @@ public class AmoRequestService implements RequestService {
     private final CompaniesKeeper companiesKeeper;
     private final LeadsKeeper leadsKeeper;
     private final ToEntityRequestMapper toEntityRequestMapper;
+    private final AmoCRMSourceRestClient amoCRMSourceRestClient;
     @Value("${config.crm.request.limit}")
     private int requestLimit;
     @Value("${config.crm.request.timeout_seconds}")
@@ -245,6 +250,41 @@ public class AmoRequestService implements RequestService {
             this.companiesKeeper.append();
         } catch (FileWritingException e) {
             log.error("Exception {} when companiesKeeper.append()", e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteEntities() {
+        deleteEntity(this.contactsKeeper, amoCRMSourceRestClient::deleteContact);
+        deleteEntity(this.companiesKeeper, amoCRMSourceRestClient::deleteCompany);
+        deleteEntity(this.leadsKeeper, amoCRMSourceRestClient::deleteLead);
+    }
+    private void deleteEntity(IdsKeeper idsKeeper, Consumer<String> crmDeleteRequest) {
+        List<String> ids = null;
+        try {
+            idsKeeper.read();
+            ids = new ArrayList<>(idsKeeper.getIds());
+        } catch (FileReadingException e) {
+            log.error("deleteEntity threw FileReadingException: {}", e.getMessage());
+        }
+        if (ids == null) {
+            log.error("delete 0 entities by idsKeeper: {}", idsKeeper);
+            return;
+        }
+        for (String id : ids) {
+            if (id.isBlank()) continue;
+            crmDeleteRequest.accept(id);
+            try {
+                Thread.sleep(requestTimeout * 1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        try {
+            idsKeeper.delete(ids);
+        } catch (FileReadingException | FileWritingException e) {
+            log.error("deleteEntity threw FileReadingException | FileWritingException: {}", e.getMessage());
         }
     }
 

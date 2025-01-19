@@ -39,7 +39,9 @@ public abstract class IdsKeeper {
 
     public void read() throws FileReadingException {
         this.ids.clear();
-        this.ids = Arrays.stream(fileUtil.readFile().split("\n"))
+        String read = fileUtil.readFile();
+        if (read.isBlank()) return;
+        this.ids = Arrays.stream(read.split("\n"))
                 .collect(Collectors.toList());
     }
 

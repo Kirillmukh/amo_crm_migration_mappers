@@ -91,4 +91,8 @@ public class DefaultApplicationFacade implements ApplicationFacade {
 
         requestService.saveContact(crmContactRequest);
     }
+    @Override
+    public void rollback() {
+        requestService.deleteEntities();
+    }
 }
