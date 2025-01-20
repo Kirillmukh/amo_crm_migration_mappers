@@ -15,11 +15,13 @@ import com.example.dbeaver_migration_mappers.input_models.request.RequestContact
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestOpportunity;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 @Configuration
+@Slf4j
 public class RestClientConfiguration {
     @Value("${config.database.baseUrl}")
     private String databaseUrl;

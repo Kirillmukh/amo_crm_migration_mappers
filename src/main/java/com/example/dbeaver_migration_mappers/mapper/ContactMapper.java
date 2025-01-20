@@ -109,6 +109,9 @@ public interface ContactMapper {
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
     }
+    @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(request.getContact()))")
+    @Mapping(target = "firstName", source = "request.contact.name")
+    @Mapping(target = "name", source = "request.contact.name")
     CRMContact mapToOutputRequestContactWithoutCompany(RequestContactWithoutCompanyDTO request);
     List<CRMContact> mapToOutputRequestContactWithoutCompany(List<RequestContactWithoutCompanyDTO> request);
 }

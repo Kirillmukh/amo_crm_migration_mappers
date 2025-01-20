@@ -24,6 +24,8 @@ import static com.example.dbeaver_migration_mappers.crm_models.constants.LeadFie
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 @Slf4j
 public abstract class LeadMapper {
+    // TODO: 20.01.2025 Unmapped target property: "embeddedLead"
+    // TODO: 20.01.2025 Unmapped target properties: "name, price, customFieldValues"
     @Autowired
     protected ContactMapper contactMapper;
     @Autowired

@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-// TODO: 04.01.2025 Сделать паузу между запросами
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -50,6 +48,8 @@ public class AmoRequestService implements RequestService {
     private int requestLimit;
     @Value("${config.crm.request.timeout_seconds}")
     private int requestTimeout;
+    @Value("${config.crm.delete_request.timeout_seconds}")
+    private int deleteRequestTimeout;
 
     @Override
     public void saveComplexLead(CRMLeadRequest crmLeadRequest) {
@@ -170,86 +170,109 @@ public class AmoRequestService implements RequestService {
 
     @Override
     public void saveContact(CRMContactRequest crmContactRequest) {
-        List<CRMContact> crmContacts = crmContactRequest.crmContactList();
-        List<List<CRMContact>> group = this.group(crmContacts);
-        for (List<CRMContact> list : group) {
-            CRMContactRequest request = new CRMContactRequest(list);
-            List<CRMContactResponse.Embedded.Contact> contacts = amoCRMRestClient.createContact(request).embedded().contacts();
-            try {
-                Thread.sleep(requestTimeout * 1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            contacts.forEach(this::keep);
-        }
         try {
-            this.contactsKeeper.append();
-        } catch (FileWritingException e) {
-            log.error("Exception {} when contactsKeeper.append()", e.getMessage());
-        }
-
-        /// split request and save
-    }
-
-    @Override
-    public void saveCompanyAndContacts(CRMCompanyCRMContactsListWrapper crmCompanyRequest) {
-        int size = crmCompanyRequest.list().size();
-        List<List<List<CRMContact>>> groupedContacts = crmCompanyRequest.list().stream()
-                .map(CRMCompanyCRMContactsWrapper::crmContact)
-                .map(this::group)
-                .toList();
-        List<CRMCompany> companiesQueue = crmCompanyRequest.list().stream().map(CRMCompanyCRMContactsWrapper::crmCompany).toList();
-        List<CRMCompanyRequest> groupedCompanies = group(companiesQueue).stream().map(CRMCompanyRequest::new).toList();
-
-        // load companies
-        List<CRMCompanyResponse.Embedded.Company> companiesResponses = new ArrayList<>();
-        for (CRMCompanyRequest companyRequest : groupedCompanies) {
-            amoCRMRestClient.createCompany(companyRequest).embedded().companies().stream()
-                    .peek(this::keep)
-                    .forEach(companiesResponses::add);
-        }
-
-        if (companiesResponses.size() != groupedContacts.size()) {
-            String message = "Different length in companiesResponses and groupedContacts";
-            log.error(message);
-            log.error("companiesResponses.size() = {}", companiesResponses.size());
-            log.error("groupedContacts.size() = {}", groupedContacts.size());
-            throw new IllegalStateException(message);
-        }
-
-        // load contacts and link it with companies
-        List<CRMToEntityResponse> crmToEntityResponses = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            CRMCompanyResponse.Embedded.Company company = companiesResponses.get(i);
-            List<List<CRMContact>> list = groupedContacts.get(i);
-            for (List<CRMContact> crmContacts : list) {
-                List<CRMContactResponse.Embedded.Contact> contacts = amoCRMRestClient.createContact(new CRMContactRequest(crmContacts)).embedded().contacts();
+            List<CRMContact> crmContacts = crmContactRequest.crmContactList();
+            List<List<CRMContact>> group = this.group(crmContacts);
+            for (List<CRMContact> list : group) {
+                CRMContactRequest request = new CRMContactRequest(list);
+                log.info("Request to crm: createContact; body: {}", request);
+                List<CRMContactResponse.Embedded.Contact> contacts = amoCRMRestClient.createContact(request).embedded().contacts();
                 try {
                     Thread.sleep(requestTimeout * 1000L);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
                 contacts.forEach(this::keep);
-                CRMToEntityRequest crmToEntityRequest = new CRMToEntityRequest(toEntityRequestMapper.mapContactsToLinks(contacts));
-                CRMToEntityResponse crmToEntityResponse = amoCRMRestClient.linkCompany(company.id(), crmToEntityRequest);
+            }
+        } finally {
+            try {
+                this.contactsKeeper.append();
+            } catch (FileWritingException e) {
+                log.error("Exception {} when contactsKeeper.append()", e.getMessage());
+            }
+        }
+
+
+        /// split request and save
+    }
+
+    @Override
+    public void saveCompanyAndContacts(CRMCompanyCRMContactsListWrapper crmCompanyRequest) {
+        try {
+            int size = crmCompanyRequest.list().size();
+            List<List<List<CRMContact>>> groupedContacts = crmCompanyRequest.list().stream()
+                    .map(CRMCompanyCRMContactsWrapper::crmContact)
+                    .map(this::group)
+                    .toList();
+            List<CRMCompany> companiesQueue = crmCompanyRequest.list().stream().map(CRMCompanyCRMContactsWrapper::crmCompany).toList();
+            List<CRMCompanyRequest> groupedCompanies = group(companiesQueue).stream().map(CRMCompanyRequest::new).toList();
+
+            // load companies
+            List<CRMCompanyResponse.Embedded.Company> companiesResponses = new ArrayList<>();
+            for (CRMCompanyRequest companyRequest : groupedCompanies) {
+                log.info("Request to crm: createCompany; body: {}", companyRequest);
+                amoCRMRestClient.createCompany(companyRequest).embedded().companies().stream()
+                        .peek(this::keep)
+                        .forEach(companiesResponses::add);
                 try {
                     Thread.sleep(requestTimeout * 1000L);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                crmToEntityResponses.add(crmToEntityResponse);
             }
-        }
-        log.info("crmToEntityResponses: {}", crmToEntityResponses.stream().map(response -> response.embedded().links()).toList());
-        try {
-            this.contactsKeeper.append();
-        } catch (FileWritingException e) {
-            log.error("Exception {} when contactsKeeper.append()", e.getMessage());
-        }
-        try {
-            this.companiesKeeper.append();
-        } catch (FileWritingException e) {
-            log.error("Exception {} when companiesKeeper.append()", e.getMessage());
+            try {
+                this.companiesKeeper.append();
+            } catch (FileWritingException e) {
+                log.error("Exception {} when companiesKeeper.append()", e.getMessage());
+            }
+
+
+            if (companiesResponses.size() != groupedContacts.size()) {
+                String message = "Different length in companiesResponses and groupedContacts";
+                log.error(message);
+                log.error("companiesResponses.size() = {}", companiesResponses.size());
+                log.error("groupedContacts.size() = {}", groupedContacts.size());
+                log.warn("maybe you should rollback data, because all companies fully uploaded to crm (check target/company_ids.txt)");
+                throw new IllegalStateException(message);
+            }
+
+            // load contacts and link it with companies
+            List<CRMToEntityResponse> crmToEntityResponses = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                CRMCompanyResponse.Embedded.Company company = companiesResponses.get(i);
+                List<List<CRMContact>> list = groupedContacts.get(i);
+                for (List<CRMContact> crmContacts : list) {
+                    log.info("Request to crm: createContact; body: {}", crmContacts);
+                    List<CRMContactResponse.Embedded.Contact> contacts = amoCRMRestClient.createContact(new CRMContactRequest(crmContacts)).embedded().contacts();
+                    try {
+                        Thread.sleep(requestTimeout * 1000L);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    contacts.forEach(this::keep);
+                    CRMToEntityRequest crmToEntityRequest = new CRMToEntityRequest(toEntityRequestMapper.mapContactsToLinks(contacts));
+                    log.info("Request to crm: linkContact to company; body: {}", crmToEntityRequest);
+                    CRMToEntityResponse crmToEntityResponse = amoCRMRestClient.linkCompany(company.id(), crmToEntityRequest);
+                    try {
+                        Thread.sleep(requestTimeout * 1000L);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    crmToEntityResponses.add(crmToEntityResponse);
+                }
+            }
+            log.info("crmToEntityResponses: {}", crmToEntityResponses.stream().map(response -> response.embedded().links()).toList());
+        } finally {
+            try {
+                this.contactsKeeper.append();
+            } catch (FileWritingException e) {
+                log.error("Exception {} when contactsKeeper.append()", e.getMessage());
+            }
+            try {
+                this.companiesKeeper.append();
+            } catch (FileWritingException e) {
+                log.error("Exception {} when companiesKeeper.append()", e.getMessage());
+            }
         }
     }
 
@@ -259,6 +282,7 @@ public class AmoRequestService implements RequestService {
         deleteEntity(this.companiesKeeper, amoCRMSourceRestClient::deleteCompany);
         deleteEntity(this.leadsKeeper, amoCRMSourceRestClient::deleteLead);
     }
+
     private void deleteEntity(IdsKeeper idsKeeper, Consumer<String> crmDeleteRequest) {
         List<String> ids = null;
         try {
@@ -275,7 +299,7 @@ public class AmoRequestService implements RequestService {
             if (id.isBlank()) continue;
             crmDeleteRequest.accept(id);
             try {
-                Thread.sleep(requestTimeout * 1000L);
+                Thread.sleep(deleteRequestTimeout * 1000L);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -285,6 +309,7 @@ public class AmoRequestService implements RequestService {
             idsKeeper.delete(ids);
         } catch (FileReadingException | FileWritingException e) {
             log.error("deleteEntity threw FileReadingException | FileWritingException: {}", e.getMessage());
+            log.error("ids in keeper: {}", idsKeeper.getIds());
         }
     }
 
@@ -294,14 +319,17 @@ public class AmoRequestService implements RequestService {
             this.contactsKeeper.offer(String.valueOf(contact.id()));
         } catch (FileWritingException e) {
             log.error("error while writing contacts info");
+            log.error("error when writing id = {} to contactsKeeper", contact.id());
         }
     }
+
     private void keep(CRMComplexLeadResponse crmComplexLeadResponse) {
         if (crmComplexLeadResponse.id() != null) {
             try {
                 this.leadsKeeper.offer(String.valueOf(crmComplexLeadResponse.id()));
             } catch (FileWritingException e) {
                 log.error("error while writing leads info");
+                log.error("error when writing id = {} to leadsKeeper", crmComplexLeadResponse.id());
             }
         }
         if (crmComplexLeadResponse.companyId() != null) {
@@ -309,6 +337,7 @@ public class AmoRequestService implements RequestService {
                 this.companiesKeeper.offer(String.valueOf(crmComplexLeadResponse.companyId()));
             } catch (FileWritingException e) {
                 log.error("error while writing companies info");
+                log.error("error when writing id = {} to companiesKeeper", crmComplexLeadResponse.companyId());
             }
         }
         if (crmComplexLeadResponse.contactId() != null) {
@@ -316,6 +345,7 @@ public class AmoRequestService implements RequestService {
                 this.contactsKeeper.offer(String.valueOf(crmComplexLeadResponse.contactId()));
             } catch (FileWritingException e) {
                 log.error("error while writing contacts info");
+                log.error("error when writing id = {} to contactsKeeper", crmComplexLeadResponse.contactId());
             }
         }
     }
@@ -326,6 +356,7 @@ public class AmoRequestService implements RequestService {
             this.companiesKeeper.offer(String.valueOf(company.id()));
         } catch (FileWritingException e) {
             log.error("error while writing companies info");
+            log.error("error when writing id = {} to companiesKeeper", company.id());
         }
     }
 

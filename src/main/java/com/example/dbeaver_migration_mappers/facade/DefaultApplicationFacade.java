@@ -41,14 +41,8 @@ public class DefaultApplicationFacade implements ApplicationFacade {
         // маппинг под CRM
         CRMLeadRequest crmLeadRequest = new CRMLeadRequest(leadMapper.mapRequestLead(requestDatabaseLeads));
 
-        requestService.saveComplexLead(crmLeadRequest);
-
-        // группировка по 50 элементов
-//        List<CRMLeadRequest> crmLeadRequestRequests = groupCRMLeadRequest(crmLeadRequest);
-
-        // запрос в срм в отдельном потоке
-//        sendComplexLeads(crmLeadRequestRequests);
-
+        // Не протестировано на реальных кейсах
+        // requestService.saveComplexLead(crmLeadRequest);
     }
 
     @Override

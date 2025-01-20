@@ -52,7 +52,6 @@ public abstract class IdsKeeper {
         }
     }
     public void delete(List<String> ids) throws FileReadingException, FileWritingException {
-        if (!this.ids.isEmpty()) append();
         read();
         this.ids.removeAll(ids);
         String reduce = this.ids.stream()

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 
-@RestController
+@RestController("debug")
 @Slf4j
 public class DebugController {
     @Autowired

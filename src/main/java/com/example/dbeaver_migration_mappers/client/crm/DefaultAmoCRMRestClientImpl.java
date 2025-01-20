@@ -35,7 +35,7 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
     @Override
     public CRMContactResponse createContact(CRMContactRequest crmContactRequest) {
         return restClient.post()
-                .uri("companies")
+                .uri("contacts")
                 .body(crmContactRequest.crmContactList())
                 .retrieve()
                 .body(CRMContactResponse.class);

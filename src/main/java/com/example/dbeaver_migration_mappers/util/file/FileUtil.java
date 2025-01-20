@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -45,6 +46,14 @@ public class FileUtil {
 
     public void write(String data) throws FileWritingException {
         synchronized (LOCK) {
+            if (data.isBlank()) {
+                try {
+                    new FileWriter(getPath(), false).close();
+                } catch (IOException e) {
+                    throw new FileWritingException(e);
+                }
+                return;
+            }
             Path file = Path.of(path);
             ByteBuffer byteBuffer = ByteBuffer.wrap(data.getBytes());
             try (FileChannel fileChannel = FileChannel.open(file, StandardOpenOption.WRITE)) {
@@ -67,6 +76,7 @@ public class FileUtil {
             return new String(byteBuffer.array());
         }
     }
+
     public void append(String data) throws FileWritingException {
         synchronized (LOCK) {
             Path file = Path.of(path);

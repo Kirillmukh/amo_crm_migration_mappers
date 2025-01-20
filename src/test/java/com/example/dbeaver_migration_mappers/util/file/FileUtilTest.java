@@ -8,6 +8,8 @@ import org.junit.jupiter.api.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,5 +94,28 @@ class FileUtilTest {
     @Test
     void readFile_wrongPath_throwException() {
         assertThrows(FileReadingException.class, wrongFileUtil::readFile);
+    }
+
+    @Test
+    void write_correctInput_rewrite() throws IOException {
+        try {
+            defaultFileUtil.write(data);
+        } catch (FileWritingException e) {
+            System.out.println("FileWritingException: " + e.getMessage());
+        }
+
+        assertEquals(Files.readString(Path.of(testFile)), data);
+
+        try {
+            String reduce = new ArrayList<String>().stream()
+                    .map(id -> id.concat("\n"))
+                    .reduce("", String::concat);
+            defaultFileUtil.write(reduce);
+
+            assertEquals("", reduce);
+            assertEquals(0, new File(defaultFileUtil.getPath()).length());
+        } catch (FileWritingException e) {
+            System.out.println("FileWritingException: " + e.getMessage());
+        }
     }
 }
