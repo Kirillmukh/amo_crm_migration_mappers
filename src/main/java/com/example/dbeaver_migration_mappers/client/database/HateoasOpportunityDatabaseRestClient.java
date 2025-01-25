@@ -1,6 +1,6 @@
 package com.example.dbeaver_migration_mappers.client.database;
 
-import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
+import com.example.dbeaver_migration_mappers.client.DatabaseRequestRestClient;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestOpportunity;
 import jakarta.ws.rs.core.Response;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class HateoasOpportunityDatabaseRestClient implements DatabaseRestClient<RequestOpportunity, ListHateoasEntity<RequestOpportunity>>  {
+public class HateoasOpportunityDatabaseRestClient implements DatabaseRequestRestClient<ListHateoasEntity<RequestOpportunity>> {
     private final RestClient restClient;
     @Override
     public Optional<ListHateoasEntity<RequestOpportunity>> request() {
@@ -51,34 +51,6 @@ public class HateoasOpportunityDatabaseRestClient implements DatabaseRestClient<
                 .body(Response.class)) {
             if (response.hasEntity()) {
                 result = (ListHateoasEntity<RequestOpportunity>) response.getEntity();
-            }
-        }
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public Optional<RequestOpportunity> requestById(String id) {
-        RequestOpportunity result = null;
-        try (Response response = restClient.get()
-                .uri("opportunity/{id}", id)
-                .retrieve()
-                .body(Response.class)) {
-            if (response.hasEntity()) {
-                result = (RequestOpportunity) response.getEntity();
-            }
-        }
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public Optional<RequestOpportunity> requestById(String id, @DateTimeFormat(pattern = "${config.dateFormat}") LocalDate date) {
-        RequestOpportunity result = null;
-        try (Response response = restClient.get()
-                .uri("opportunity/{id}?date={date}", id, date)
-                .retrieve()
-                .body(Response.class)) {
-            if (response.hasEntity()) {
-                result = (RequestOpportunity) response.getEntity();
             }
         }
         return Optional.ofNullable(result);

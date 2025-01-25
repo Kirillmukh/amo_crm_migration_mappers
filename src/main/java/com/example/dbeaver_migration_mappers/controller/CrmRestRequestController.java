@@ -2,6 +2,8 @@ package com.example.dbeaver_migration_mappers.controller;
 
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMCompany;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
+import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsListWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
 import com.example.dbeaver_migration_mappers.facade.ApplicationFacade;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.InputLead;
@@ -34,12 +36,12 @@ public class CrmRestRequestController {
 //        applicationFacade.loadComplexLead();
 //    }
     @GetMapping("handle-new-companies")
-    public void handleNewCompanies() {
-        applicationFacade.loadCompaniesAndContacts();
+    public CRMCompanyCRMContactsListWrapper handleNewCompanies() {
+        return applicationFacade.loadCompaniesAndContacts();
     }
     @GetMapping("handle-new-contacts")
-    public void handleNewContacts() {
-        applicationFacade.loadContactsWithoutCompany();
+    public CRMContactRequest handleNewContacts() {
+        return applicationFacade.loadContactsWithoutCompany();
     }
     @DeleteMapping
     public void deleteAll() {

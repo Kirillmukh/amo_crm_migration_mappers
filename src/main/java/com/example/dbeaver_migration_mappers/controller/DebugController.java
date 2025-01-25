@@ -8,21 +8,27 @@ import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompan
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMCompanyRequest;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
 import com.example.dbeaver_migration_mappers.crm_models.response.CRMCompanyResponse;
+import com.example.dbeaver_migration_mappers.input_models.InputCompany;
+import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompanyWithContactsDTO;
 import com.example.dbeaver_migration_mappers.mapper.CompanyMapper;
 import com.example.dbeaver_migration_mappers.mapper.ContactMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 
-@RestController("debug")
+@RestController
+@RequestMapping("debug")
 @Slf4j
 public class DebugController {
     @Autowired
@@ -36,10 +42,8 @@ public class DebugController {
     private int requestLimit;
 
     @GetMapping("log")
-    public void log() {
-        Set<String> set = companyMapper.getSet();
+    public void log() throws IOException {
 
-        set.forEach(log::info);
     }
     @GetMapping("company")
     public DebugResponse mapCompany() {
@@ -77,5 +81,9 @@ public class DebugController {
                       List<CRMContact> contactRequests) {
 
         }
+    }
+    @PostMapping("contact")
+    public CRMContact mapContact(@RequestBody InputContact inputCompany) {
+        return this.contactMapper.mapToOutput(inputCompany);
     }
 }

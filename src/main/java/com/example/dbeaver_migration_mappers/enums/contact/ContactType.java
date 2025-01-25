@@ -31,6 +31,9 @@ public enum ContactType implements ValueEnum {
                 return type;
             }
         }
+        if (value.equals("Подписка перенесена в АМО")) {
+            return SUBSCRIBE;
+        }
         throw new IllegalArgumentException("Wrong value for ContactType: " + value);
     }
 }

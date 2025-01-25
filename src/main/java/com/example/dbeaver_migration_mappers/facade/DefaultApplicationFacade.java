@@ -1,13 +1,11 @@
 package com.example.dbeaver_migration_mappers.facade;
 
-import com.example.dbeaver_migration_mappers.client.DatabaseRestClient;
 import com.example.dbeaver_migration_mappers.client.collector.RequestCollector;
-import com.example.dbeaver_migration_mappers.crm_models.entity.CRMLead;
+import com.example.dbeaver_migration_mappers.client.hateoas_link.CompanyWithContactsHateoasRestClient;
 import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsListWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
-import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompanyWithContactsDTO;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
@@ -25,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class DefaultApplicationFacade implements ApplicationFacade {
-    private final DatabaseRestClient<RequestLead, ListHateoasEntity<RequestLead>> leadDatabaseRestClient;
     private final RequestService requestService;
     private final LeadMapper leadMapper;
     private final ContactMapper contactMapper;
@@ -47,25 +44,31 @@ public class DefaultApplicationFacade implements ApplicationFacade {
 
     @Override
     public void loadLeadsByGUID(List<String> guids) {
-        List<CRMLead> collect = guids.stream()
-                .map(leadDatabaseRestClient::requestById)
-                .map(optional -> {
-                    if (optional.isEmpty()) {
-                        log.error("HateoasLeadDatabaseRestClient class return response with empty entity. Maybe id is wrong");
-                        throw new RuntimeException("HateoasLeadDatabaseRestClient class return response with empty entity");
-                    }
-                    return optional.get();
-                })
-                .map(leadMapper::mapRequestLead)
-                .toList();
-
-        CRMLeadRequest crmLeadRequest = new CRMLeadRequest(collect);
-
-        requestService.saveComplexLead(crmLeadRequest);
+//        List<CRMLead> collect = guids.stream()
+//                .map(leadDatabaseRestClient::requestById)
+//                .map(optional -> {
+//                    if (optional.isEmpty()) {
+//                        log.error("HateoasLeadDatabaseRestClient class return response with empty entity. Maybe id is wrong");
+//                        throw new RuntimeException("HateoasLeadDatabaseRestClient class return response with empty entity");
+//                    }
+//                    return optional.get();
+//                })
+//                .map(leadMapper::mapRequestLead)
+//                .toList();
+//
+//        CRMLeadRequest crmLeadRequest = new CRMLeadRequest(collect);
+//
+//        requestService.saveComplexLead(crmLeadRequest);
     }
     @Override
-    public void loadCompaniesAndContacts() {
+    public CRMCompanyCRMContactsListWrapper loadCompaniesAndContacts() {
         List<RequestCompanyWithContactsDTO> requestDatabaseCompaniesWithContacts = requestCompanyWithContactsCollector.requestContent();
+//         DEBUG
+        requestDatabaseCompaniesWithContacts = requestDatabaseCompaniesWithContacts.subList(0, 15);
+//         DEBUG
+
+        log.info("requestDatabaseCompaniesWithContacts = {}", requestDatabaseCompaniesWithContacts);
+//        if (true) throw new RuntimeException("break point");
 
         List<CRMCompanyCRMContactsWrapper> crmCompanyCRMContactsWrappers = requestDatabaseCompaniesWithContacts.stream()
                 .map(request -> new CRMCompanyCRMContactsWrapper(
@@ -73,17 +76,24 @@ public class DefaultApplicationFacade implements ApplicationFacade {
                         contactMapper.mapToOutput(request.getContacts())))
                 .toList();
 
+//        if (true) throw new RuntimeException("break point");
+
+
         CRMCompanyCRMContactsListWrapper crmCompanyRequest = new CRMCompanyCRMContactsListWrapper(crmCompanyCRMContactsWrappers);
 
         requestService.saveCompanyAndContacts(crmCompanyRequest);
+        return crmCompanyRequest;
     }
     @Override
-    public void loadContactsWithoutCompany() {
+    public CRMContactRequest loadContactsWithoutCompany() {
         List<RequestContactWithoutCompanyDTO> requestDatabaseContactsWithoutCompanies = requestContactWithoutCompanyCollector.requestContent();
 
+        log.info("requestDatabaseContactsWithoutCompanies = {}", requestDatabaseContactsWithoutCompanies);
         CRMContactRequest crmContactRequest = new CRMContactRequest(contactMapper.mapToOutputRequestContactWithoutCompany(requestDatabaseContactsWithoutCompanies));
 
+        if (true) throw new RuntimeException("security | break point");
         requestService.saveContact(crmContactRequest);
+        return crmContactRequest;
     }
     @Override
     public void rollback() {

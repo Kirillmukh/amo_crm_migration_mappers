@@ -1,29 +1,39 @@
 package com.example.dbeaver_migration_mappers.mapper;
 
-import com.example.dbeaver_migration_mappers.enums.ValueEnum;
-import com.example.dbeaver_migration_mappers.enums.contact.*;
-import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.util.CustomFieldValue;
 import com.example.dbeaver_migration_mappers.crm_models.util.Value;
+import com.example.dbeaver_migration_mappers.enums.ValueEnum;
+import com.example.dbeaver_migration_mappers.enums.contact.*;
+import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
+import com.example.dbeaver_migration_mappers.util.EventMatcher;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.example.dbeaver_migration_mappers.crm_models.constants.ContactFieldsID.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ContactMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Slf4j
+public abstract class ContactMapper {
+    @Autowired
+    private EventMatcher eventMatcher;
+
     @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(inputContact))")
     @Mapping(target = "firstName", source = "name")
-    CRMContact mapToOutput(InputContact inputContact);
-    List<CRMContact> mapToOutput(List<InputContact> inputContacts);
+    public abstract CRMContact mapToOutput(InputContact inputContact);
 
-    default List<CustomFieldValue> setCustomFieldValues(InputContact input) {
+    public abstract List<CRMContact> mapToOutput(List<InputContact> inputContacts);
+
+    protected List<CustomFieldValue> setCustomFieldValues(InputContact input) {
         List<CustomFieldValue> list = new ArrayList<>();
 
         if (!input.getJobTitle().isBlank()) {
@@ -79,12 +89,19 @@ public interface ContactMapper {
         }
 
         if (!input.getUsrOldEvents().isBlank()) {
-            List<Value> events = new ArrayList<>();
-            for (String event : input.getUsrOldEvents().split(" ")) {
-                if (ContactEvent.contains(event)) {
-                    events.add(new Value(ContactEvent.of(event)));
-                }
-            }
+            List<Value> events = Arrays.stream(input.getUsrOldEvents().split(" "))
+                    .filter(eventMatcher::correctEvent)
+                    .map(eventMatcher::parseEvent)
+                    .filter(event -> {
+                        if (ContactEvent.contains(event)) {
+                            return true;
+                        } else {
+                            log.info("Event didn't map: {}", event);
+                            return false;
+                        }
+                    })
+                    .map(event -> new Value(ContactEvent.of(event)))
+                    .toList();
             list.add(new CustomFieldValue(EVENTS, events));
         }
 
@@ -103,15 +120,19 @@ public interface ContactMapper {
 
         return list;
     }
+
     private List<Value> singleValue(String value) {
         return List.of(new Value(value));
     }
+
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
     }
+
     @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(request.getContact()))")
     @Mapping(target = "firstName", source = "request.contact.name")
     @Mapping(target = "name", source = "request.contact.name")
-    CRMContact mapToOutputRequestContactWithoutCompany(RequestContactWithoutCompanyDTO request);
-    List<CRMContact> mapToOutputRequestContactWithoutCompany(List<RequestContactWithoutCompanyDTO> request);
+    public abstract CRMContact mapToOutputRequestContactWithoutCompany(RequestContactWithoutCompanyDTO request);
+
+    public abstract List<CRMContact> mapToOutputRequestContactWithoutCompany(List<RequestContactWithoutCompanyDTO> request);
 }
