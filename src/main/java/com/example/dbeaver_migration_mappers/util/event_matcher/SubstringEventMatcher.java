@@ -1,9 +1,10 @@
-package com.example.dbeaver_migration_mappers.util;
+package com.example.dbeaver_migration_mappers.util.event_matcher;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class EventMatcher {
+public class SubstringEventMatcher implements EventMatcher {
+    @Override
     public boolean correctEvent(String event) {
         switch (event) {
             case "19.06)":
@@ -13,7 +14,7 @@ public class EventMatcher {
                 return true;
         }
     }
-
+    @Override
     public String parseEvent(String event) {
         int index = event.indexOf("(");
         if (index != -1) {

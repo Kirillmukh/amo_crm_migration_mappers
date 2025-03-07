@@ -36,13 +36,6 @@ public class RequestCollector<Entity> {
         if (linkToNext == null) {
             return content;
         }
-
-        if (linkToNext == null) {
-            log.error("linkToNext is null in DefaultApplicationFacade.java " +
-                    "may be request is not contains next rel");
-            throw new RuntimeException("linkToNext is null in DefaultApplicationFacade.java " +
-                    "may be request is not contains next rel");
-        }
         content.addAll(requestContentHelper(linkToNext));
         return content;
     }

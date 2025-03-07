@@ -76,4 +76,21 @@ public class DefaultAmoCRMRestClientImpl implements AmoCRMRestClient {
                 .retrieve()
                 .body(CRMToEntityResponse.class);
     }
+
+    @Override
+    public CRMCompaniesResponse findCompanyByName(String name) {
+        return restClient.get()
+                .uri("companies?query={name}", name)
+                .retrieve()
+                .body(CRMCompaniesResponse.class);
+    }
+
+    @Override
+    public CRMUpdateContactResponse updateContact(CRMUpdateContactRequest request) {
+        return restClient.patch()
+                .uri("contacts")
+                .body(request.list())
+                .retrieve()
+                .body(CRMUpdateContactResponse.class);
+    }
 }

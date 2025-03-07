@@ -6,6 +6,7 @@ import com.example.dbeaver_migration_mappers.client.database.*;
 import com.example.dbeaver_migration_mappers.client.hateoas_link.CompanyWithContactsHateoasRestClient;
 import com.example.dbeaver_migration_mappers.client.hateoas_link.ContactWithoutCompanyHateoasRestClient;
 import com.example.dbeaver_migration_mappers.client.hateoas_link.LeadHateoasRestClient;
+import com.example.dbeaver_migration_mappers.client.hateoas_link.NewContactOldCompanyHateoasRestClient;
 import com.example.dbeaver_migration_mappers.input_models.hateoas.ListHateoasEntity;
 import com.example.dbeaver_migration_mappers.input_models.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ public class RestClientConfiguration {
                 .build();
         return new DefaultAmoCRMRestClientImpl(restClient);
     }
+    // DATABASE
     @Bean
     public DatabaseRequestRestClient<ListHateoasEntity<RequestCompany>> companyDatabaseRestClient() {
         RestClient restClient = databaseRestClient();
@@ -59,6 +61,11 @@ public class RestClientConfiguration {
         RestClient restClient = databaseRestClient();
         return new HateoasContactWithoutCompanyDatabaseRestClient(restClient);
     }
+    @Bean
+    public DatabaseRequestRestClient<ListHateoasEntity<RequestContactAndCompany>> newContactsOldCompaniesRestClient() {
+        RestClient restClient = databaseRestClient();
+        return new HateoasNewContactOldCompany(restClient);
+    }
 
     @Bean
     public LeadHateoasRestClient leadHateoasRestClient() {
@@ -66,15 +73,21 @@ public class RestClientConfiguration {
                 .build();
         return new LeadHateoasRestClient(restClient);
     }
+    // HATEOAS
     @Bean
     public CompanyWithContactsHateoasRestClient companyWithContactsHateoasRestClient() {
-        RestClient restClient = RestClient.builder().build();
+        RestClient restClient = emptyHateaosRestClient();
         return new CompanyWithContactsHateoasRestClient(restClient);
     }
     @Bean
     public ContactWithoutCompanyHateoasRestClient contactWithoutCompanyHateoasRestClient() {
-        RestClient restClient = RestClient.builder().build();
+        RestClient restClient = emptyHateaosRestClient();
         return new ContactWithoutCompanyHateoasRestClient(restClient);
+    }
+    @Bean
+    public NewContactOldCompanyHateoasRestClient newContactOldCompanyHateoasRestClient() {
+        RestClient restClient = emptyHateaosRestClient();
+        return new NewContactOldCompanyHateoasRestClient(restClient);
     }
     @Bean
     public AmoCRMSourceRestClient amoCRMSourceRestClient(@Value("${config.crm.sourceUrl}") String baseUrl, @Value("${config.crm.token}") String token) {
@@ -86,5 +99,8 @@ public class RestClientConfiguration {
     }
     private RestClient databaseRestClient() {
         return RestClient.builder().baseUrl(databaseUrl).build();
+    }
+    private RestClient emptyHateaosRestClient() {
+        return RestClient.builder().build();
     }
 }

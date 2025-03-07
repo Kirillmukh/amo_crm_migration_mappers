@@ -16,4 +16,5 @@ public class ContactFieldsID {
     public static final int DISC_CARD = 2922041;
     public static final int MODERATION = 3013403;
     public static final int NOTES = 3013399;
+    public static final int ACTUAL_DATE = 2967533;
 }

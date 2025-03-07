@@ -3,6 +3,8 @@ package com.example.dbeaver_migration_mappers.input_models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -34,6 +36,5 @@ public class InputContact {
     private byte doNotUseSms;
     private byte doNotUsEmail;
     private String usrPrimKontakta; // contact -> usrPrimKontakta // notes
-
-
+    private Date usrDateUpdate;
 }

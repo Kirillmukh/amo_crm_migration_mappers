@@ -15,7 +15,8 @@ public record CRMToEntityResponse(
                 @JsonProperty("to_entity_id")
                 int toEntityId,
                 @JsonProperty("to_entity_type")
-                String toEntityType
+                String toEntityType,
+                Object metadata
         ) {}
     }
 }

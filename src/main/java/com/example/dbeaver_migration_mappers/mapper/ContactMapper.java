@@ -7,7 +7,8 @@ import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.contact.*;
 import com.example.dbeaver_migration_mappers.input_models.InputContact;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
-import com.example.dbeaver_migration_mappers.util.EventMatcher;
+import com.example.dbeaver_migration_mappers.util.event_matcher.EventMatcher;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -15,9 +16,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.ZoneOffset;
+import java.util.*;
 
 import static com.example.dbeaver_migration_mappers.crm_models.constants.ContactFieldsID.*;
 
@@ -118,6 +118,10 @@ public abstract class ContactMapper {
             list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontakta())));
         }
 
+        if (input.getUsrDateUpdate() != null) {
+            list.add(new CustomFieldValue(ACTUAL_DATE, singleValue(input.getUsrDateUpdate().getTime() / 1000)));
+        }
+
         return list;
     }
 
@@ -128,6 +132,7 @@ public abstract class ContactMapper {
     private List<Value> singleValue(ValueEnum value) {
         return List.of(new Value(value));
     }
+    private List<Value> singleValue(Object o) { return List.of(new Value(o)); }
 
     @Mapping(target = "customFieldValues", expression = "java(setCustomFieldValues(request.getContact()))")
     @Mapping(target = "firstName", source = "request.contact.name")

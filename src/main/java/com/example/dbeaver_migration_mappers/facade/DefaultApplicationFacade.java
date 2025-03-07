@@ -1,23 +1,27 @@
 package com.example.dbeaver_migration_mappers.facade;
 
 import com.example.dbeaver_migration_mappers.client.collector.RequestCollector;
-import com.example.dbeaver_migration_mappers.client.hateoas_link.CompanyWithContactsHateoasRestClient;
+import com.example.dbeaver_migration_mappers.crm_models.entity.CRMContact;
 import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsListWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.CRMCompanyCRMContactsWrapper;
+import com.example.dbeaver_migration_mappers.crm_models.entity.wrapper.InputCompaniesCRMContactsWrapper;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMContactRequest;
 import com.example.dbeaver_migration_mappers.crm_models.request.CRMLeadRequest;
+import com.example.dbeaver_migration_mappers.input_models.InputCompany;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestCompanyWithContactsDTO;
+import com.example.dbeaver_migration_mappers.input_models.request.RequestContactAndCompany;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestContactWithoutCompanyDTO;
 import com.example.dbeaver_migration_mappers.input_models.request.RequestLead;
 import com.example.dbeaver_migration_mappers.mapper.CompanyMapper;
 import com.example.dbeaver_migration_mappers.mapper.ContactMapper;
 import com.example.dbeaver_migration_mappers.mapper.LeadMapper;
 import com.example.dbeaver_migration_mappers.service.RequestService;
+import com.example.dbeaver_migration_mappers.util.file.JsonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,73 +34,107 @@ public class DefaultApplicationFacade implements ApplicationFacade {
     private final RequestCollector<RequestLead> requestLeadCollector;
     private final RequestCollector<RequestCompanyWithContactsDTO> requestCompanyWithContactsCollector;
     private final RequestCollector<RequestContactWithoutCompanyDTO> requestContactWithoutCompanyCollector;
+    private final RequestCollector<RequestContactAndCompany> requestContactAndCompanyRequestCollector;
+    private final JsonService jsonService;
     @Override
-    public void loadComplexLead() {
-        // запрос на сервер бд
+    public void saveComplexLead() {
         List<RequestLead> requestDatabaseLeads = requestLeadCollector.requestContent();
 
-        // маппинг под CRM
         CRMLeadRequest crmLeadRequest = new CRMLeadRequest(leadMapper.mapRequestLead(requestDatabaseLeads));
 
-        // Не протестировано на реальных кейсах
-        // requestService.saveComplexLead(crmLeadRequest);
+        jsonService.saveObject(crmLeadRequest);
+        log.info("data saved to CRMLeadRequest.json");
     }
+    @Override
+    public void saveNewContacts() {
+        List<RequestContactWithoutCompanyDTO> requestDatabaseContactsWithoutCompanies = requestContactWithoutCompanyCollector.requestContent();
 
-    @Override
-    public void loadLeadsByGUID(List<String> guids) {
-//        List<CRMLead> collect = guids.stream()
-//                .map(leadDatabaseRestClient::requestById)
-//                .map(optional -> {
-//                    if (optional.isEmpty()) {
-//                        log.error("HateoasLeadDatabaseRestClient class return response with empty entity. Maybe id is wrong");
-//                        throw new RuntimeException("HateoasLeadDatabaseRestClient class return response with empty entity");
-//                    }
-//                    return optional.get();
-//                })
-//                .map(leadMapper::mapRequestLead)
-//                .toList();
-//
-//        CRMLeadRequest crmLeadRequest = new CRMLeadRequest(collect);
-//
-//        requestService.saveComplexLead(crmLeadRequest);
+        CRMContactRequest crmContactRequest = new CRMContactRequest(contactMapper.mapToOutputRequestContactWithoutCompany(requestDatabaseContactsWithoutCompanies));
+
+        jsonService.saveObject(crmContactRequest);
+        log.info("data saved to CRMContactRequest.json");
     }
     @Override
-    public CRMCompanyCRMContactsListWrapper loadCompaniesAndContacts() {
+    public void saveNewCompaniesNewContacts() {
         List<RequestCompanyWithContactsDTO> requestDatabaseCompaniesWithContacts = requestCompanyWithContactsCollector.requestContent();
-//         DEBUG
-        requestDatabaseCompaniesWithContacts = requestDatabaseCompaniesWithContacts.subList(0, 15);
-//         DEBUG
-
-        log.info("requestDatabaseCompaniesWithContacts = {}", requestDatabaseCompaniesWithContacts);
-//        if (true) throw new RuntimeException("break point");
 
         List<CRMCompanyCRMContactsWrapper> crmCompanyCRMContactsWrappers = requestDatabaseCompaniesWithContacts.stream()
                 .map(request -> new CRMCompanyCRMContactsWrapper(
                         companyMapper.mapToOutput(request.getCompany()),
                         contactMapper.mapToOutput(request.getContacts())))
                 .toList();
-
-//        if (true) throw new RuntimeException("break point");
-
-
         CRMCompanyCRMContactsListWrapper crmCompanyRequest = new CRMCompanyCRMContactsListWrapper(crmCompanyCRMContactsWrappers);
 
-        requestService.saveCompanyAndContacts(crmCompanyRequest);
-        return crmCompanyRequest;
+        jsonService.saveObject(crmCompanyRequest);
+        log.info("data saved to CRMCompanyCRMContactsListWrapper.json");
     }
     @Override
-    public CRMContactRequest loadContactsWithoutCompany() {
-        List<RequestContactWithoutCompanyDTO> requestDatabaseContactsWithoutCompanies = requestContactWithoutCompanyCollector.requestContent();
+    public void saveNewContactsOldCompanies() {
+        List<RequestContactAndCompany> requestContactAndCompanies = requestContactAndCompanyRequestCollector.requestContent();
+        Map<InputCompany, List<CRMContact>> groupedByCompany = new HashMap<>();
 
-        log.info("requestDatabaseContactsWithoutCompanies = {}", requestDatabaseContactsWithoutCompanies);
-        CRMContactRequest crmContactRequest = new CRMContactRequest(contactMapper.mapToOutputRequestContactWithoutCompany(requestDatabaseContactsWithoutCompanies));
+        // group by company
+        requestContactAndCompanies.forEach(companyAndContact -> {
+            InputCompany inputCompany = companyAndContact.getCompany();
+            if (!groupedByCompany.containsKey(inputCompany)) {
+                groupedByCompany.put(inputCompany, new ArrayList<>());
+            }
+            CRMContact contact = contactMapper.mapToOutput(companyAndContact.getContact());
+            groupedByCompany.get(inputCompany).add(contact);
+        });
 
-        if (true) throw new RuntimeException("security | break point");
-        requestService.saveContact(crmContactRequest);
-        return crmContactRequest;
+
+        List<InputCompany> inputCompanies = new ArrayList<>(groupedByCompany.keySet());
+        List<List<CRMContact>> contacts = new ArrayList<>();
+        inputCompanies.forEach(company ->
+                contacts.add(groupedByCompany.get(company))
+        );
+
+        InputCompaniesCRMContactsWrapper wrapper = new InputCompaniesCRMContactsWrapper(inputCompanies, contacts);
+        jsonService.saveObject(wrapper);
+        log.info("data saved to InputCompaniesCRMContactsWrapper.json");
+    }
+
+    @Override
+    public void loadComplexLead(int offset) {
+        CRMLeadRequest crmLeadRequest = jsonService.loadObject(CRMLeadRequest.class);
+
+        // Не протестировано на реальных кейсах
+        requestService.saveComplexLead(crmLeadRequest, offset);
+        log.info("Выгрузка закончена успешно");
     }
     @Override
-    public void rollback() {
-        requestService.deleteEntities();
+    public void loadNewContacts(int offset) {
+        CRMContactRequest crmContactRequest = jsonService.loadObject(CRMContactRequest.class);
+
+        requestService.saveNewContacts(crmContactRequest, offset);
+        log.info("Выгрузка закончена успешно");
+    }
+    @Override
+    public void loadNewCompanies(int offset) {
+        CRMCompanyCRMContactsListWrapper crmCompanyRequest = jsonService.loadObject(CRMCompanyCRMContactsListWrapper.class);
+
+        requestService.saveNewContactsOldCompanies(crmCompanyRequest, offset);
+        log.info("Выгрузка закончена успешно");
+    }
+    @Override
+    public void loadNewContactsOldCompanies(int offset) {
+        InputCompaniesCRMContactsWrapper inputCompaniesCRMContactsWrapper = jsonService.loadObject(InputCompaniesCRMContactsWrapper.class);
+
+        requestService.saveNewCompaniesNewContacts(inputCompaniesCRMContactsWrapper, offset);
+        log.info("Выгрузка закончена успешно");
+    }
+
+    @Override
+    public void deleteContacts(int offset, boolean deleteFromFile) {
+        requestService.deleteContacts(offset, deleteFromFile);
+    }
+    @Override
+    public void deleteCompanies(int offset, boolean deleteFromFile) {
+        requestService.deleteCompanies(offset, deleteFromFile);
+    }
+    @Override
+    public void deleteLeads(int offset, boolean deleteFromFile) {
+        requestService.deleteLeads(offset, deleteFromFile);
     }
 }

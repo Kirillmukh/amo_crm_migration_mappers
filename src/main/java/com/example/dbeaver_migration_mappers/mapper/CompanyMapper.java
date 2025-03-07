@@ -8,7 +8,7 @@ import com.example.dbeaver_migration_mappers.crm_models.util.Value;
 import com.example.dbeaver_migration_mappers.enums.ValueEnum;
 import com.example.dbeaver_migration_mappers.enums.company.*;
 import com.example.dbeaver_migration_mappers.input_models.InputCompany;
-import com.example.dbeaver_migration_mappers.util.EventMatcher;
+import com.example.dbeaver_migration_mappers.util.event_matcher.EventMatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.example.dbeaver_migration_mappers.crm_models.constants.CompanyFieldsID.*;
@@ -59,16 +58,6 @@ public abstract class CompanyMapper {
         list.add(new CustomFieldValue(INDUSTRY, singleValue(industry)));
 
         list.add(new CustomFieldValue(EDM, singleValue(input.isUsrCompanyUseEDM())));
-
-//        if (!input.getUsrOldEvents().isBlank()) {
-//            List<Value> events = new ArrayList<>();
-//            for (String event : input.getUsrOldEvents().split(" ")) {
-//                if (CompanyEvent.contains(event)) {
-//                    events.add(new Value(CompanyEvent.of(event)));
-//                }
-//            }
-//            list.add(new CustomFieldValue(EVENTS, events));
-//        }
 
         if (!input.getUsrPrimKontr().isBlank()) {
             list.add(new CustomFieldValue(NOTES, singleValue(input.getUsrPrimKontr())));
